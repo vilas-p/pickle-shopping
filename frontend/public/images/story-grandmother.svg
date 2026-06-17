@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" role="img" aria-label="Grandmother making pickles">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f4e3c0"/>
+      <stop offset="1" stop-color="#c8542f"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="800" fill="url(#bg)"/>
+  <circle cx="300" cy="320" r="120" fill="#fbe2d8"/>
+  <rect x="200" y="430" width="200" height="280" rx="40" fill="#85311d"/>
+  <rect x="170" y="640" width="260" height="120" rx="12" fill="#3a2418"/>
+  <text x="300" y="780" text-anchor="middle" font-family="Caveat, cursive" font-size="34" fill="#fdfaf3">Made with love</text>
+</svg>

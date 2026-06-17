@@ -1,0 +1,21 @@
+export const ROUTES = {
+  home: "/",
+  products: "/products",
+  productDetail: (slug: string) => `/products/${slug}`,
+  cart: "/cart",
+  checkout: "/checkout",
+  checkoutAddress: "/checkout/address",
+  checkoutPayment: "/checkout/payment",
+  checkoutConfirmation: (orderNumber: string) => `/checkout/confirmation/${orderNumber}`,
+  authLogin: "/auth/login",
+  account: "/account",
+  accountOrders: "/account/orders",
+  accountOrderDetail: (orderNumber: string) => `/account/orders/${orderNumber}`,
+  about: "/about",
+  contact: "/contact",
+  faq: "/faq",
+  reviews: "/reviews",
+  trackOrder: "/track-order",
+  // Legacy single-page order route, preserved until the new cart/checkout flow ships.
+  legacyOrder: "/order",
+} as const;
