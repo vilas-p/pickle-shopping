@@ -7,6 +7,7 @@ export const ordersApi = {
     http<Order>("/orders", {
       method: "POST",
       body: JSON.stringify(payload),
+      auth: true,
       cache: "no-store",
     }),
   byNumber: (orderNumber: string) =>

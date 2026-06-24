@@ -58,11 +58,11 @@ app:
     code-length: ${APP_OTP_CODE_LENGTH:6}
     ttl: ${APP_OTP_TTL:PT10M}
     max-attempts: ${APP_OTP_MAX_ATTEMPTS:5}
+    rate-limit-max-per-window: ${APP_OTP_RATE_MAX:5}
+    rate-limit-window: ${APP_OTP_RATE_WINDOW:PT15M}
   razorpay:
     key-id: ${RAZORPAY_KEY_ID:rzp_test_placeholder}
     key-secret: ${RAZORPAY_KEY_SECRET:placeholder_secret}
-    rate-limit-max-per-window: ${APP_OTP_RATE_MAX:5}
-    rate-limit-window: ${APP_OTP_RATE_WINDOW:PT15M}
   cors:
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:3000}
 
@@ -86,5 +86,5 @@ management:
 logging:
   level:
     root: ERROR
-    com.appaamma: ERROR
-    org.hibernate.SQL: ERROR
+    com.appaamma: INFO
+    org.hibernate.SQL: INFO

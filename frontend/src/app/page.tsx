@@ -69,7 +69,7 @@ export default async function HomePage() {
           <div className="relative">
             <div className="relative mx-auto aspect-square w-full max-w-md rotate-2 overflow-hidden rounded-[2.5rem] bg-brand-primary-100 shadow-warm ring-1 ring-brand-primary-200">
               <Image
-                src="/images/hero-pickle-jar.svg"
+                src="/images/hero-pickle-jar.png"
                 alt="Traditional clay pickle jar with mango pickle"
                 fill
                 priority
@@ -81,42 +81,11 @@ export default async function HomePage() {
               <p className="font-script text-xl text-brand-primary-700">
                 Made in our village
               </p>
-              <p className="text-xs text-brand-earth-700/70">— Andhra Pradesh</p>
+              <p className="text-xs text-brand-earth-700/70">— Karnataka</p>
             </div>
           </div>
         </div>
       </section>
-
-      {/* CATEGORIES */}
-      {categories.length > 0 && (
-        <section className="container-page py-16">
-          <SectionHeading
-            eyebrow="Three Pickles. Endless Memories."
-            title="A small, lovingly curated range"
-            description="We only make what our family has perfected over decades. No shortcuts, no fillers."
-          />
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {categories.slice(0, 3).map((cat) => (
-              <Link
-                key={cat.id}
-                href={`/products?category=${cat.slug}`}
-                className="group block overflow-hidden rounded-2xl bg-brand-cream-100 p-6 ring-1 ring-brand-cream-200 transition hover:-translate-y-1 hover:bg-white hover:shadow-card"
-              >
-                <p className="badge-tag">Recipe</p>
-                <h3 className="mt-3 font-display text-2xl font-semibold text-brand-earth-900">
-                  {cat.name} Pickle
-                </h3>
-                <p className="mt-2 text-sm text-brand-earth-700/85">
-                  {cat.description}
-                </p>
-                <p className="mt-4 text-sm font-semibold text-brand-primary-600 group-hover:underline">
-                  Explore →
-                </p>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* FEATURED PRODUCTS */}
       <section className="bg-brand-cream-100/60 py-16">

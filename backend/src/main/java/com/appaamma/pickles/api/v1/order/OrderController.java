@@ -29,8 +29,11 @@ public class OrderController {
 
     @Operation(summary = "Place a new order from the storefront")
     @PostMapping
-    public ResponseEntity<ApiResponse<OrderResponse>> place(@Valid @RequestBody CreateOrderRequest request) {
-        OrderResponse order = orderService.createOrder(request);
+    public ResponseEntity<ApiResponse<OrderResponse>> place(
+            @AuthenticationPrincipal CustomerPrincipal principal,
+            @Valid @RequestBody CreateOrderRequest request
+    ) {
+        OrderResponse order = orderService.createOrder(request, principal);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok(order, "Order placed successfully"));
     }

@@ -16,6 +16,7 @@ import com.appaamma.pickles.domain.product.ProductVariant;
 import com.appaamma.pickles.domain.product.ProductVariantRepository;
 import com.appaamma.pickles.exception.BadRequestException;
 import com.appaamma.pickles.exception.ResourceNotFoundException;
+import com.appaamma.pickles.security.CustomerPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,13 +40,14 @@ public class OrderService {
     private final AddressRepository addressRepository;
 
     @Transactional
-    public OrderResponse createOrder(CreateOrderRequest req) {
+    public OrderResponse createOrder(CreateOrderRequest req, CustomerPrincipal principal) {
         if (req.items() == null || req.items().isEmpty()) {
             throw new BadRequestException("Order must contain at least one item");
         }
 
-        Customer customer = findOrCreateCustomer(req.customer());
-        Address address = appendShippingAddress(customer, req.shippingAddress());
+        Customer customer = findOrCreateCustomer(req.customer(), principal);
+        syncCustomerProfile(customer, req.customer(), principal);
+        Address address = resolveShippingAddress(customer, req.shippingAddress());
 
 
         Order order = Order.builder()
@@ -169,13 +171,63 @@ public class OrderService {
      * would let any guest hijack another customer's record by placing an order with their
      * email. New customers are created lazily on first order.
      */
-    private Customer findOrCreateCustomer(CreateOrderRequest.CustomerInfo info) {
+    private Customer findOrCreateCustomer(CreateOrderRequest.CustomerInfo info, CustomerPrincipal principal) {
+        if (principal != null) {
+            return customerRepository.findById(principal.customerId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Customer", "id", principal.customerId()));
+        }
         return customerRepository.findByEmailIgnoreCase(info.email())
                 .orElseGet(() -> customerRepository.save(Customer.builder()
                         .fullName(info.fullName())
                         .email(info.email().toLowerCase())
                         .phone(info.phone())
                         .build()));
+    }
+
+    private void syncCustomerProfile(Customer customer,
+                                     CreateOrderRequest.CustomerInfo info,
+                                     CustomerPrincipal principal) {
+        if (principal == null) {
+            return;
+        }
+
+        String verifiedPhone = normalisePhone(principal.phone());
+        String requestedPhone = normalisePhone(info.phone());
+        if (!verifiedPhone.equals(requestedPhone)) {
+            throw new BadRequestException("The order phone number must match the verified mobile number");
+        }
+
+        customer.setPhone(verifiedPhone);
+        customer.setFullName(info.fullName().trim());
+
+        String requestedEmail = info.email().trim().toLowerCase();
+        if (shouldReplacePlaceholderEmail(customer.getEmail(), requestedEmail)) {
+            customerRepository.findByEmailIgnoreCase(requestedEmail)
+                    .filter(existing -> !existing.getId().equals(customer.getId()))
+                    .ifPresent(existing -> {
+                        throw new BadRequestException("That email is already linked to another customer");
+                    });
+            customer.setEmail(requestedEmail);
+        }
+
+        customerRepository.save(customer);
+    }
+
+    private boolean shouldReplacePlaceholderEmail(String currentEmail, String requestedEmail) {
+        if (currentEmail == null || currentEmail.isBlank()) {
+            return true;
+        }
+        if (currentEmail.equalsIgnoreCase(requestedEmail)) {
+            return false;
+        }
+        return currentEmail.endsWith("@appaamma.local");
+    }
+
+    private Address resolveShippingAddress(Customer customer, CreateOrderRequest.ShippingAddressInfo info) {
+        return customer.getAddresses().stream()
+                .filter(existing -> addressesMatch(existing, info))
+                .findFirst()
+                .orElseGet(() -> appendShippingAddress(customer, info));
     }
 
     private Address appendShippingAddress(Customer customer, CreateOrderRequest.ShippingAddressInfo info) {
@@ -194,5 +246,22 @@ public class OrderService {
         addressRepository.save(address);
         customerRepository.save(customer);
         return address;
+    }
+
+    private boolean addressesMatch(Address existing, CreateOrderRequest.ShippingAddressInfo candidate) {
+        return normaliseText(existing.getLine1()).equals(normaliseText(candidate.line1()))
+                && normaliseText(existing.getLine2()).equals(normaliseText(candidate.line2()))
+                && normaliseText(existing.getCity()).equals(normaliseText(candidate.city()))
+                && normaliseText(existing.getState()).equals(normaliseText(candidate.state()))
+                && normaliseText(existing.getPincode()).equals(normaliseText(candidate.pincode()))
+                && normaliseText(existing.getLandmark()).equals(normaliseText(candidate.landmark()));
+    }
+
+    private String normaliseText(String value) {
+        return value == null ? "" : value.trim().toLowerCase();
+    }
+
+    private String normalisePhone(String value) {
+        return value == null ? "" : value.replaceAll("\\D", "");
     }
 }

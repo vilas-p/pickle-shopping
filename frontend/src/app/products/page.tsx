@@ -50,7 +50,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
           <p className="mt-1 text-sm text-brand-earth-700/70">Try clearing the filters above.</p>
         </div>
       ) : (
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {products.map((p) => <ProductCard key={p.id} product={p} />)}
         </div>
       )}

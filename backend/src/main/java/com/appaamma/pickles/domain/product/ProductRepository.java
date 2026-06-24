@@ -12,15 +12,15 @@ import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
 
-    @EntityGraph(attributePaths = {"category", "images", "variants"})
+    @EntityGraph(attributePaths = {"category", "images"})
     Optional<Product> findBySlug(String slug);
 
     boolean existsBySlug(String slug);
 
-    @EntityGraph(attributePaths = {"category", "images", "variants"})
+    @EntityGraph(attributePaths = {"category", "images"})
     @Query("select p from Product p where p.active = true and p.featured = true")
     List<Product> findFeatured();
 
-    @EntityGraph(attributePaths = {"category", "images", "variants"})
+    @EntityGraph(attributePaths = {"category", "images"})
     Page<Product> findAllByActiveTrue(Pageable pageable);
 }

@@ -30,8 +30,8 @@ export default function ContactPage() {
           </div>
           <div className="card-warm">
             <p className="font-display text-lg font-semibold text-brand-earth-900">Email</p>
-            <a href="mailto:hello@appaammas.in" className="mt-1 block text-brand-primary-700 hover:underline">
-              hello@appaammas.in
+            <a href="mailto:appaammaspickles@gmail.com" className="mt-1 block text-brand-primary-700 hover:underline">
+              appaammaspickles@gmail.com
             </a>
           </div>
           <div className="card-warm">

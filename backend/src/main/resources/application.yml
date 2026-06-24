@@ -86,5 +86,5 @@ management:
 logging:
   level:
     root: ERROR
-    com.appaamma: INFO
-    org.hibernate.SQL: INFO
+    com.appaamma: DEBUG
+    org.hibernate.SQL: DEBUG

@@ -23,5 +23,6 @@ export function whatsappGenericLink(message?: string): string {
 }
 
 export function instagramLink(): string {
-  return `https://instagram.com/${config.instagramHandle}`;
+  // return `https://www.instagram.com/${config.instagramHandle}`;
+  return `https://www.instagram.com/appa_ammas_pickles/`;
 }
