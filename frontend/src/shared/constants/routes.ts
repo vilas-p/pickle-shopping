@@ -1,5 +1,9 @@
 export const ROUTES = {
   home: "/",
+  adminHome: "/admin",
+  adminLogin: "/admin/login",
+  adminDashboard: "/admin/dashboard",
+  adminOrders: "/admin/orders",
   products: "/products",
   productDetail: (slug: string) => `/products/${slug}`,
   cart: "/cart",

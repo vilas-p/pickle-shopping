@@ -8,4 +8,10 @@ export const addressBookApi = {
       auth: true,
       cache: "no-store",
     }),
+  deleteMine: (addressId: number) =>
+    http<void>(`/customer-addresses/${addressId}`, {
+      method: "DELETE",
+      auth: true,
+      cache: "no-store",
+    }),
 };

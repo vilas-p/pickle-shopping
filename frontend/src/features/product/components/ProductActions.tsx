@@ -17,6 +17,7 @@ interface Props {
 export function ProductActions({ product }: Props) {
   const router = useRouter();
   const add = useCartStore((s) => s.add);
+  const items = useCartStore((s) => s.items);
   const [qty, setQty] = useState(1);
   const [justAdded, setJustAdded] = useState(false);
 
@@ -31,8 +32,18 @@ export function ProductActions({ product }: Props) {
   const activeCompare = selectedVariant?.compareAtPrice ?? product.compareAtPrice;
   const activeWeight = selectedVariant?.weight ?? product.weight;
   const hasDiscount = activeCompare != null && activeCompare > activePrice;
+  const inCart = items.some(
+    (line) =>
+      line.productId === product.id &&
+      line.variantId === (selectedVariant?.id ?? undefined)
+  );
 
   const handleAdd = (then?: "cart") => {
+    if (then !== "cart" && inCart) {
+      router.push(ROUTES.cart);
+      return;
+    }
+
     add({
       id: product.id,
       variantId: selectedVariant?.id,
@@ -70,17 +81,13 @@ export function ProductActions({ product }: Props) {
       {hasVariants && (
         <div>
           <span className="label-field">Weight</span>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {variants.map((v) => (
               <button
                 key={v.id}
                 type="button"
                 onClick={() => setSelectedVariant(v)}
-                className={`rounded-full border px-4 py-1.5 text-sm font-medium transition ${
-                  selectedVariant?.id === v.id
-                    ? "border-brand-primary-600 bg-brand-primary-50 text-brand-primary-700"
-                    : "border-brand-earth-300 bg-white text-brand-earth-700 hover:border-brand-primary-400"
-                }`}
+                className={selectedVariant?.id === v.id ? "weight-active" : "weight-btn"}
               >
                 {v.weight}
               </button>
@@ -95,8 +102,12 @@ export function ProductActions({ product }: Props) {
       </div>
 
       <div className="flex flex-wrap gap-3">
-        <button type="button" onClick={() => handleAdd()} className="btn-primary">
-          {justAdded ? "Added ✓" : "Add to cart"}
+        <button
+          type="button"
+          onClick={() => handleAdd()}
+          className={`cart-cta ${justAdded || inCart ? "cart-cta-active" : ""}`}
+        >
+          {inCart ? "View cart" : justAdded ? "Added ✓" : "Add to cart"}
         </button>
         <button
           type="button"

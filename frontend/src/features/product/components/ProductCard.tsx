@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import type { Product, ProductVariant } from "../types";
 import { formatPrice } from "@/shared/lib/format";
-import { hasDiscount, primaryImage } from "../utils";
+import { primaryImage } from "../utils";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/features/cart/store";
 import { ROUTES } from "@/shared/constants/routes";
@@ -17,7 +17,6 @@ interface Props {
 export function ProductCard({ product }: Props) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
-  const [addedToCart, setAddedToCart] = useState(false);
   const router = useRouter();
   const add = useCartStore((s) => s.add);
   const items = useCartStore((s) => s.items);
@@ -32,31 +31,31 @@ export function ProductCard({ product }: Props) {
   const displayPrice = effectiveVariant ? effectiveVariant.price : product.price;
 
   const handleAddToCart = (e: React.MouseEvent) => {
-  e.preventDefault();
-  e.stopPropagation();
+    e.preventDefault();
+    e.stopPropagation();
 
-  if (inCart) {
-    router.push(ROUTES.cart);
-    return;
-  }
+    if (inCart) {
+      router.push(ROUTES.cart);
+      return;
+    }
 
-  add({
-    id: product.id,
-    variantId: effectiveVariant?.id,
-    slug: product.slug,
-    name: product.name,
-    price: displayPrice,
-    weight: effectiveVariant?.weight ?? product.weight,
-    image: primaryImage(product),
-    quantity: 1,
-  });
-};
+    add({
+      id: product.id,
+      variantId: effectiveVariant?.id,
+      slug: product.slug,
+      name: product.name,
+      price: displayPrice,
+      weight: effectiveVariant?.weight ?? product.weight,
+      image: primaryImage(product),
+      quantity: 1,
+    });
+  };
 
   const inCart = items.some(
-  (line) =>
-    line.productId === product.id &&
-    line.variantId === (effectiveVariant?.id ?? undefined)
-);
+    (line) =>
+      line.productId === product.id &&
+      line.variantId === (effectiveVariant?.id ?? undefined)
+  );
 
   const handlePrevImage = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -195,9 +194,7 @@ export function ProductCard({ product }: Props) {
 
     <button
       onClick={handleAddToCart}
-      className={`mt-6 w-full rounded-2xl px-6 py-5 flex items-center justify-between font-bold text-xl transition-colors ${
-        inCart ? "bg-green-600 text-white" : "bg-brand-primary text-white"
-      }`}
+      className={`cart-cta mt-6 justify-between ${inCart ? "cart-cta-active" : ""}`}
     >
       <span>{inCart ? "VIEW CART" : "ADD TO CART"}</span>
       <span>{!inCart ? formatPrice(displayPrice) : null}</span>

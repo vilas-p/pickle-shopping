@@ -31,32 +31,36 @@ export default async function ProductsPage({ searchParams }: PageProps) {
   const currentPage = productsResult.value?.page ?? 0;
 
   return (
-    <div className="container-page py-12">
-      <SectionHeading
-        eyebrow="Shop"
-        title="Our Pickles"
-        description="Three timeless recipes — made in small batches, packed in glass jars, shipped pan-India."
-      />
+    <section className="bg-brand-cream-100/60 py-12 sm:py-16">
+      <div className="container-page">
+        <div className="rounded-[2rem] bg-white/80 p-6 shadow-card ring-1 ring-brand-cream-200 backdrop-blur-sm sm:p-8">
+          <SectionHeading
+            eyebrow="Shop"
+            title="Our Pickles"
+            description="Three timeless recipes — made in small batches, packed in glass jars, shipped pan-India."
+          />
 
-      <div className="mt-10">
-        <Suspense fallback={<div className="card-warm h-24 animate-pulse" />}>
-          <ProductFilters categories={categories} />
-        </Suspense>
+          <div className="mt-10">
+            <Suspense fallback={<div className="card-warm h-24 animate-pulse" />}>
+              <ProductFilters categories={categories} />
+            </Suspense>
+          </div>
+
+          {products.length === 0 ? (
+            <div className="card-warm mt-10 text-center">
+              <p className="font-display text-xl text-brand-earth-900">No pickles match your search</p>
+              <p className="mt-1 text-sm text-brand-earth-700/70">Try clearing the filters above.</p>
+            </div>
+          ) : (
+            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {products.map((p) => <ProductCard key={p.id} product={p} />)}
+            </div>
+          )}
+
+          {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} sp={sp} />}
+        </div>
       </div>
-
-      {products.length === 0 ? (
-        <div className="card-warm mt-10 text-center">
-          <p className="font-display text-xl text-brand-earth-900">No pickles match your search</p>
-          <p className="mt-1 text-sm text-brand-earth-700/70">Try clearing the filters above.</p>
-        </div>
-      ) : (
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((p) => <ProductCard key={p.id} product={p} />)}
-        </div>
-      )}
-
-      {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} sp={sp} />}
-    </div>
+    </section>
   );
 }
 

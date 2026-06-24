@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Header } from "@/shared/layout/Header";
 import { Footer } from "@/shared/layout/Footer";
 import { WhatsAppFab } from "@/shared/layout/WhatsAppFab";
+import { AdminAuthBridge } from "@/features/admin/auth/AdminAuthBridge";
 import { AuthBridge } from "@/features/auth/AuthBridge";
 import { config } from "@/shared/lib/config";
 import "./globals.css";
@@ -53,6 +54,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AuthBridge />
+        <AdminAuthBridge />
         <Header />
         <main className="min-h-screen">{children}</main>
         <Footer />

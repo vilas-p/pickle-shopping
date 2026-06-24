@@ -8,6 +8,7 @@ import { useCartStore, selectItems, selectSubtotal, selectCount } from "@/featur
 import { authApi } from "@/features/auth/api";
 import { useAuthStore, selectCustomer } from "@/features/auth/store";
 import { addressBookApi } from "@/features/address/api";
+import { deliveryApi } from "@/features/delivery/api";
 import { ordersApi } from "@/features/order/api";
 import { paymentsApi } from "@/features/checkout/api";
 import { useApiSubmit } from "@/shared/hooks/useApiSubmit";
@@ -16,6 +17,7 @@ import { ROUTES } from "@/shared/constants/routes";
 import { INDIA_STATES } from "@/shared/constants/india-states";
 import { config } from "@/shared/lib/config";
 import type { AddressBookEntry } from "@/features/address/types";
+import type { DeliveryEstimate } from "@/features/delivery/types";
 import type { CreateOrderPayload } from "@/features/order/types";
 
 const FREE_SHIPPING_THRESHOLD = 999;
@@ -46,6 +48,8 @@ const EMPTY_FIELDS: CheckoutFields = {
   landmark: "",
   notes: "",
 };
+
+type DeliveryEstimateStatus = "idle" | "loading" | "ready" | "error";
 
 function normalisePhone(value: string): string {
   return value.replace(/\D/g, "");
@@ -87,6 +91,10 @@ export function CheckoutForm() {
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
   const [showNewAddressForm, setShowNewAddressForm] = useState(true);
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
+  const [deletingAddressId, setDeletingAddressId] = useState<number | null>(null);
+  const [deliveryEstimate, setDeliveryEstimate] = useState<DeliveryEstimate | null>(null);
+  const [deliveryEstimateStatus, setDeliveryEstimateStatus] = useState<DeliveryEstimateStatus>("idle");
+  const [deliveryEstimateMessage, setDeliveryEstimateMessage] = useState("");
   const { status, message, submit } = useApiSubmit(ordersApi.create);
   const requestOtp = useApiSubmit(authApi.requestOtp, { successMessage: "OTP sent to your mobile number." });
   const verifyOtp = useApiSubmit(authApi.verifyOtp, { successMessage: "Phone verified." });
@@ -96,6 +104,20 @@ export function CheckoutForm() {
   const normalizedEnteredPhone = normalisePhone(fields.phone);
   const isPhoneVerified = verifiedPhone != null && verifiedPhone === normalizedEnteredPhone;
   const selectedSavedAddress = savedAddresses.find((address) => address.id === selectedAddressId) ?? null;
+  const estimateCity = !showNewAddressForm && selectedSavedAddress
+    ? selectedSavedAddress.city
+    : fields.city;
+  const estimateState = !showNewAddressForm && selectedSavedAddress
+    ? selectedSavedAddress.state
+    : fields.state;
+  const estimatePincode = !showNewAddressForm && selectedSavedAddress
+    ? selectedSavedAddress.pincode
+    : fields.pincode;
+  const canEstimateDelivery = Boolean(
+    estimateCity.trim()
+      && estimateState.trim()
+      && /^[1-9][0-9]{5}$/.test(estimatePincode.trim())
+  );
 
   useEffect(() => {
     if (!authHasHydrated || !isAuthenticated || !authCustomer) {
@@ -171,6 +193,47 @@ export function CheckoutForm() {
       cancelled = true;
     };
   }, [authHasHydrated, fields, isAuthenticated, isPhoneVerified]);
+
+  useEffect(() => {
+    if (!canEstimateDelivery) {
+      setDeliveryEstimate(null);
+      setDeliveryEstimateStatus("idle");
+      setDeliveryEstimateMessage("");
+      return;
+    }
+
+    let cancelled = false;
+    setDeliveryEstimateStatus("loading");
+    setDeliveryEstimateMessage("");
+
+    const timeoutId = window.setTimeout(() => {
+      void deliveryApi.estimate({
+        city: estimateCity.trim(),
+        state: estimateState.trim(),
+        pincode: estimatePincode.trim(),
+      }).then((result) => {
+        if (cancelled) {
+          return;
+        }
+        setDeliveryEstimate(result);
+        setDeliveryEstimateStatus("ready");
+      }).catch((error: unknown) => {
+        if (cancelled) {
+          return;
+        }
+        setDeliveryEstimate(null);
+        setDeliveryEstimateStatus("error");
+        setDeliveryEstimateMessage(
+          error instanceof Error ? error.message : "Unable to estimate delivery right now."
+        );
+      });
+    }, 300);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
+  }, [canEstimateDelivery, estimateCity, estimatePincode, estimateState]);
 
   if (!hasHydrated) {
     return (
@@ -361,6 +424,40 @@ export function CheckoutForm() {
     setShowNewAddressForm(true);
   };
 
+  const deleteSavedAddress = async (addressId: number) => {
+    setLocalError("");
+    setDeletingAddressId(addressId);
+
+    try {
+      await addressBookApi.deleteMine(addressId);
+
+      const remaining = savedAddresses.filter((address) => address.id !== addressId);
+      setSavedAddresses(remaining);
+
+      if (selectedAddressId === addressId) {
+        if (remaining.length > 0) {
+          selectSavedAddress(remaining[0]);
+        } else {
+          setSelectedAddressId(null);
+          setShowNewAddressForm(true);
+          setFields((prev) => ({
+            ...prev,
+            line1: "",
+            line2: "",
+            city: "",
+            state: "",
+            pincode: "",
+            landmark: "",
+          }));
+        }
+      }
+    } catch (err) {
+      setLocalError(err instanceof Error ? err.message : "Failed to delete saved address");
+    } finally {
+      setDeletingAddressId(null);
+    }
+  };
+
   return (
     <form onSubmit={onSubmit} className="grid gap-8 lg:grid-cols-[1fr_400px]">
       <div className="space-y-8">
@@ -492,10 +589,8 @@ export function CheckoutForm() {
                   {savedAddresses.map((address) => {
                     const selected = selectedAddressId === address.id && !showNewAddressForm;
                     return (
-                      <button
+                      <div
                         key={address.id}
-                        type="button"
-                        onClick={() => selectSavedAddress(address)}
                         className={`w-full rounded-2xl border p-4 text-left transition ${
                           selected
                             ? "border-brand-primary-600 bg-brand-primary-50"
@@ -515,7 +610,29 @@ export function CheckoutForm() {
                             </span>
                           )}
                         </div>
-                      </button>
+
+                        <div className="mt-4 flex flex-wrap gap-3">
+                          <button
+                            type="button"
+                            onClick={() => selectSavedAddress(address)}
+                            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                              selected
+                                ? "bg-brand-primary-600 text-white"
+                                : "bg-white text-brand-earth-700 ring-1 ring-brand-cream-200 hover:text-brand-primary-700"
+                            }`}
+                          >
+                            {selected ? "Selected" : "Use this address"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => deleteSavedAddress(address.id)}
+                            disabled={deletingAddressId === address.id}
+                            className="rounded-full px-4 py-2 text-sm font-medium text-red-700 ring-1 ring-red-200 transition hover:bg-red-50 disabled:opacity-60"
+                          >
+                            {deletingAddressId === address.id ? "Deleting..." : "Delete"}
+                          </button>
+                        </div>
+                      </div>
                     );
                   })}
 
@@ -629,6 +746,56 @@ export function CheckoutForm() {
                   className="input-field"
                 />
               </div>
+            </div>
+          )}
+
+          {deliveryEstimateStatus !== "idle" && (
+            <div className="mt-6 rounded-2xl border border-brand-cream-200 bg-white/70 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-medium text-brand-earth-900">Estimated delivery route</p>
+                  <p className="text-xs uppercase tracking-[0.16em] text-brand-earth-700/70">
+                    {deliveryEstimate?.serviceLevel ?? "Calculating"}
+                  </p>
+                </div>
+                {deliveryEstimateStatus === "loading" && (
+                  <span className="text-sm text-brand-earth-700/70">Calculating...</span>
+                )}
+              </div>
+
+              {deliveryEstimateStatus === "error" && (
+                <p className="mt-3 text-sm text-red-600">{deliveryEstimateMessage}</p>
+              )}
+
+              {deliveryEstimate && (
+                <>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-2xl bg-brand-cream-50 px-4 py-3 text-sm text-brand-earth-800">
+                      <p className="text-xs uppercase tracking-[0.16em] text-brand-earth-700/70">From</p>
+                      <p className="mt-1 font-medium text-brand-earth-900">{deliveryEstimate.store.label}</p>
+                      <p>{deliveryEstimate.store.city}, {deliveryEstimate.store.state} {deliveryEstimate.store.pincode}</p>
+                    </div>
+                    <div className="rounded-2xl bg-brand-cream-50 px-4 py-3 text-sm text-brand-earth-800">
+                      <p className="text-xs uppercase tracking-[0.16em] text-brand-earth-700/70">To</p>
+                      <p className="mt-1 font-medium text-brand-earth-900">Customer shipping address</p>
+                      <p>{estimateCity.trim()}, {estimateState.trim()} {estimatePincode.trim()}</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap gap-3 text-sm">
+                    <span className="rounded-full bg-brand-primary-50 px-3 py-1 font-medium text-brand-primary-700 ring-1 ring-brand-primary-100">
+                      Distance: ~{deliveryEstimate.estimatedDistanceKm} km
+                    </span>
+                    <span className="rounded-full bg-brand-secondary-100 px-3 py-1 font-medium text-brand-earth-800 ring-1 ring-brand-secondary-200">
+                      ETA: {deliveryEstimate.estimatedDeliveryWindow}
+                    </span>
+                  </div>
+
+                  <p className="mt-3 text-xs text-brand-earth-700/70">
+                    Estimate is based on the store dispatch location and shipping pincode zone. Final courier timing can vary slightly.
+                  </p>
+                </>
+              )}
             </div>
           )}
         </fieldset>

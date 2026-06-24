@@ -63,6 +63,12 @@ app:
   razorpay:
     key-id: ${RAZORPAY_KEY_ID:rzp_test_placeholder}
     key-secret: ${RAZORPAY_KEY_SECRET:placeholder_secret}
+  store-location:
+    label: ${APP_STORE_LOCATION_LABEL:Appa & Amma's Village Kitchen}
+    line1: ${APP_STORE_LOCATION_LINE1:Village Kitchen Dispatch Centre}
+    city: ${APP_STORE_LOCATION_CITY:Bidar}
+    state: ${APP_STORE_LOCATION_STATE:Karnataka}
+    pincode: ${APP_STORE_LOCATION_PINCODE:585225}
   cors:
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:3000}
 

@@ -24,6 +24,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @EntityGraph(attributePaths = {"customer", "shippingAddress", "items", "items.product"})
     Page<Order> findAllByCustomerId(Long customerId, Pageable pageable);
 
+    boolean existsByShippingAddressId(Long shippingAddressId);
+
     long countByStatus(OrderStatus status);
     long countByCreatedAtAfter(Instant after);
 }

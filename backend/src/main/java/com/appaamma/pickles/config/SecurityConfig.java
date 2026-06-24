@@ -64,6 +64,7 @@ public class SecurityConfig {
                                 "/api/v1/contacts",
                                 "/api/v1/reviews",
                                 "/api/v1/auth/login",
+                                "/api/v1/delivery/estimate",
                                 "/api/v1/customer-auth/otp/request",
                                 "/api/v1/customer-auth/otp/verify",
                                 "/api/v1/payments/create-order",

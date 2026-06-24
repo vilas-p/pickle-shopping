@@ -277,10 +277,18 @@
 }
 
 .weight-btn {
-  @apply border rounded-xl py-3 font-semibold bg-white;
+  @apply rounded-xl border border-brand-earth-300 bg-white px-4 py-3 text-center font-semibold text-brand-earth-700 transition hover:border-brand-primary-400 hover:text-brand-primary-700;
 }
 
 .weight-active {
-  @apply bg-orange-500 text-white rounded-xl py-3 font-semibold;
+  @apply rounded-xl border border-brand-primary-600 bg-brand-primary-600 px-4 py-3 text-center font-semibold text-white shadow-sm;
+}
+
+.cart-cta {
+  @apply flex w-full items-center justify-center rounded-2xl bg-brand-primary px-6 py-5 text-center text-lg font-bold text-white transition-colors sm:text-xl;
+}
+
+.cart-cta-active {
+  @apply bg-green-600 text-white;
 }
 }

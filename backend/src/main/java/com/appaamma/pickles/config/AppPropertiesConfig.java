@@ -9,7 +9,8 @@ import org.springframework.context.annotation.Configuration;
         CustomerJwtProperties.class,
         CorsProperties.class,
         OtpProperties.class,
-        RazorpayProperties.class
+        RazorpayProperties.class,
+        StoreLocationProperties.class
 })
 public class AppPropertiesConfig {
 }

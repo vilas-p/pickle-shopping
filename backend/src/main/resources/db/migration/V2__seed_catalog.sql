@@ -43,17 +43,45 @@ VALUES
    (SELECT id FROM categories WHERE slug = 'bitter-gourd'),
    b'1', b'1', NOW(6), NOW(6));
 
--- Primary images (placeholder URLs — replace before production)
+-- Product images aligned with frontend/public/images/products
 INSERT INTO product_images (product_id, url, alt_text, display_order, `primary`, created_at, updated_at)
 SELECT id, '/images/products/mango-pickle.jpg', 'Jar of traditional mango pickle', 0, b'1', NOW(6), NOW(6)
 FROM products WHERE slug = 'traditional-mango-pickle';
 
 INSERT INTO product_images (product_id, url, alt_text, display_order, `primary`, created_at, updated_at)
-SELECT id, '/images/products/lemon-pickle.svg', 'Jar of sweet & spicy lemon pickle', 0, b'1', NOW(6), NOW(6)
+SELECT id, '/images/products/mango-pickle-1.png', 'Traditional mango pickle close-up', 1, b'0', NOW(6), NOW(6)
+FROM products WHERE slug = 'traditional-mango-pickle';
+
+INSERT INTO product_images (product_id, url, alt_text, display_order, `primary`, created_at, updated_at)
+SELECT id, '/images/products/mango-pickle-2.png', 'Traditional mango pickle served in bowl', 2, b'0', NOW(6), NOW(6)
+FROM products WHERE slug = 'traditional-mango-pickle';
+
+INSERT INTO product_images (product_id, url, alt_text, display_order, `primary`, created_at, updated_at)
+SELECT id, '/images/products/mango-pickle-3.png', 'Traditional mango pickle jar on table', 3, b'0', NOW(6), NOW(6)
+FROM products WHERE slug = 'traditional-mango-pickle';
+
+INSERT INTO product_images (product_id, url, alt_text, display_order, `primary`, created_at, updated_at)
+SELECT id, '/images/products/mango-pickle-4.png', 'Traditional mango pickle packaging view', 4, b'0', NOW(6), NOW(6)
+FROM products WHERE slug = 'traditional-mango-pickle';
+
+INSERT INTO product_images (product_id, url, alt_text, display_order, `primary`, created_at, updated_at)
+SELECT id, '/images/products/mango-pickle-5.png', 'Traditional mango pickle product detail image', 5, b'0', NOW(6), NOW(6)
+FROM products WHERE slug = 'traditional-mango-pickle';
+
+INSERT INTO product_images (product_id, url, alt_text, display_order, `primary`, created_at, updated_at)
+SELECT id, '/images/products/lemon-pickle-1.png', 'Jar of sweet and spicy lemon pickle', 0, b'1', NOW(6), NOW(6)
 FROM products WHERE slug = 'sweet-spicy-lemon-pickle';
 
 INSERT INTO product_images (product_id, url, alt_text, display_order, `primary`, created_at, updated_at)
-SELECT id, '/images/products/bitter-gourd-pickle.svg', 'Jar of bitter gourd pickle', 0, b'1', NOW(6), NOW(6)
+SELECT id, '/images/products/lemon-pickle-2.png', 'Sweet and spicy lemon pickle close-up', 1, b'0', NOW(6), NOW(6)
+FROM products WHERE slug = 'sweet-spicy-lemon-pickle';
+
+INSERT INTO product_images (product_id, url, alt_text, display_order, `primary`, created_at, updated_at)
+SELECT id, '/images/products/bitter-gourd-pickle-1.png', 'Jar of bitter gourd pickle', 0, b'1', NOW(6), NOW(6)
+FROM products WHERE slug = 'bitter-gourd-pickle';
+
+INSERT INTO product_images (product_id, url, alt_text, display_order, `primary`, created_at, updated_at)
+SELECT id, '/images/products/bitter-gourd-pickle-2.png', 'Bitter gourd pickle close-up', 1, b'0', NOW(6), NOW(6)
 FROM products WHERE slug = 'bitter-gourd-pickle';
 
 -- Inventory rows for each product
