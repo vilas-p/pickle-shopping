@@ -1,4 +1,4 @@
-export type PaymentMethod = "COD" | "RAZORPAY";
+export type PaymentMethod = "COD" | "UPI" | "RAZORPAY";
 
 export interface PaymentOrderResponse {
   razorpayOrderId: string;

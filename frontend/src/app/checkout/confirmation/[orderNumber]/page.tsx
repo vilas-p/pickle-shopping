@@ -28,7 +28,12 @@ export default async function ConfirmationPage({ params }: PageProps) {
     notFound();
   }
 
-  const isPaid = order.paymentMethod === "RAZORPAY";
+  const isPaidOnline = order.paymentMethod === "RAZORPAY" || order.paymentMethod === "UPI";
+  const paymentLabel = order.paymentMethod === "UPI"
+    ? "UPI"
+    : order.paymentMethod === "RAZORPAY"
+      ? "Paid online"
+      : "Cash on Delivery";
 
   return (
     <section className="container-page py-12">
@@ -52,7 +57,7 @@ export default async function ConfirmationPage({ params }: PageProps) {
             </div>
             <div className="flex justify-between">
               <dt className="font-medium">Payment</dt>
-              <dd>{isPaid ? "Paid online" : "Cash on Delivery"}</dd>
+              <dd>{paymentLabel}</dd>
             </div>
             <div className="flex justify-between border-t border-brand-cream-200 pt-3">
               <dt className="font-medium">Subtotal</dt>
@@ -70,7 +75,7 @@ export default async function ConfirmationPage({ params }: PageProps) {
         </div>
 
         <div className="mt-6 space-y-3">
-          {!isPaid && (
+          {!isPaidOnline && (
             <p className="text-sm text-brand-earth-700/80">
               You&apos;ll pay on delivery or via UPI — we&apos;ll WhatsApp you the details shortly.
             </p>

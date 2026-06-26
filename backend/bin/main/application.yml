@@ -3,6 +3,9 @@ spring:
     name: pickles-backend
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
+  output:
+    ansi:
+      enabled: ALWAYS
 
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/appaammas_pickles?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Kolkata}

@@ -3,6 +3,7 @@ package com.appaamma.pickles.api.v1.customerauth;
 import com.appaamma.pickles.api.v1.customerauth.dto.CustomerAuthResponse;
 import com.appaamma.pickles.api.v1.customerauth.dto.RequestOtpRequest;
 import com.appaamma.pickles.api.v1.customerauth.dto.RequestOtpResponse;
+import com.appaamma.pickles.api.v1.customerauth.dto.UpdateCustomerProfileRequest;
 import com.appaamma.pickles.api.v1.customerauth.dto.VerifyOtpRequest;
 import com.appaamma.pickles.domain.customer.Customer;
 import com.appaamma.pickles.domain.customer.CustomerRepository;
@@ -64,6 +65,39 @@ public class CustomerAuthService {
         Customer c = customerRepository.findById(principal.customerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer", "id", principal.customerId()));
         return new CustomerAuthResponse.CustomerSummary(c.getId(), c.getFullName(), c.getEmail(), c.getPhone());
+    }
+
+    @Transactional
+    public CustomerAuthResponse.CustomerSummary updateMe(CustomerPrincipal principal, UpdateCustomerProfileRequest request) {
+        Customer customer = customerRepository.findById(principal.customerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Customer", "id", principal.customerId()));
+
+        String email = request.email().trim().toLowerCase();
+        String phone = request.phone().trim();
+
+        customerRepository.findByEmailIgnoreCase(email)
+                .filter(existing -> !existing.getId().equals(customer.getId()))
+                .ifPresent(existing -> {
+                    throw new BadRequestException("That email address is already linked to another account");
+                });
+
+        customerRepository.findByPhone(phone)
+                .filter(existing -> !existing.getId().equals(customer.getId()))
+                .ifPresent(existing -> {
+                    throw new BadRequestException("That phone number is already linked to another account");
+                });
+
+        customer.setFullName(request.fullName().trim());
+        customer.setEmail(email);
+        customer.setPhone(phone);
+
+        Customer saved = customerRepository.save(customer);
+        return new CustomerAuthResponse.CustomerSummary(
+                saved.getId(),
+                saved.getFullName(),
+                saved.getEmail(),
+                saved.getPhone()
+        );
     }
 
     private Customer findOrCreateByPhone(String phone, String fullName) {

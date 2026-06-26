@@ -45,7 +45,8 @@ public class PaymentService {
         com.appaamma.pickles.domain.order.Order order = orderRepository.findById(req.orderId())
                 .orElseThrow(() -> new ResourceNotFoundException("Order", "id", req.orderId()));
 
-        if (order.getPaymentMethod() != PaymentMethod.RAZORPAY) {
+        if (order.getPaymentMethod() != PaymentMethod.RAZORPAY
+            && order.getPaymentMethod() != PaymentMethod.UPI) {
             throw new BadRequestException("Order is not marked for online payment");
         }
         if (order.getStatus() != OrderStatus.PENDING) {

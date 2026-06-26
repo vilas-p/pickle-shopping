@@ -89,7 +89,11 @@ export function OrderDetailView() {
     );
   }
 
-  const isPaid = order.paymentMethod === "RAZORPAY";
+  const paymentLabel = order.paymentMethod === "UPI"
+    ? "UPI"
+    : order.paymentMethod === "RAZORPAY"
+      ? "Paid online"
+      : "Cash on Delivery";
 
   return (
     <div>
@@ -147,7 +151,7 @@ export function OrderDetailView() {
           <dl className="mt-3 space-y-2 text-sm text-brand-earth-800">
             <div className="flex justify-between">
               <dt>Method</dt>
-              <dd>{isPaid ? "Paid online" : "Cash on Delivery"}</dd>
+              <dd>{paymentLabel}</dd>
             </div>
             <div className="flex justify-between">
               <dt>Subtotal</dt>

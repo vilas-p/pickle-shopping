@@ -286,7 +286,11 @@ export function AdminOrdersBoard() {
                     <div className="rounded-2xl bg-brand-cream-50 px-4 py-4 ring-1 ring-brand-cream-200">
                       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-earth-700/70">Payment</p>
                       <div className="mt-2 space-y-1 text-sm text-brand-earth-800">
-                        <div>Method: {order.paymentMethod === "RAZORPAY" ? "Paid online" : "Cash on Delivery"}</div>
+                        <div>Method: {order.paymentMethod === "UPI"
+                          ? "UPI"
+                          : order.paymentMethod === "RAZORPAY"
+                            ? "Paid online"
+                            : "Cash on Delivery"}</div>
                         <div>Subtotal: {formatPrice(order.subtotal)}</div>
                         <div>Shipping: {order.shippingFee === 0 ? "Free" : formatPrice(order.shippingFee)}</div>
                         <div className="font-semibold text-brand-earth-900">Total: {formatPrice(order.total)}</div>

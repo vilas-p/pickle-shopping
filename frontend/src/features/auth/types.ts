@@ -7,6 +7,12 @@ export interface CustomerSummary {
   phone: string;
 }
 
+export interface UpdateCustomerProfileInput {
+  fullName: string;
+  email: string;
+  phone: string;
+}
+
 export interface RequestOtpInput {
   kind: OtpIdentifierKind;
   identifier: string;

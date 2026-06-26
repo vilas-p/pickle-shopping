@@ -115,7 +115,7 @@ export default async function HomePage() {
         <div className="grid items-center gap-12 md:grid-cols-2">
           <div className="relative aspect-[4/5] overflow-hidden rounded-3xl shadow-warm">
             <Image
-              src="/images/story-grandmother.svg"
+              src="/images/story-grandmother.png"
               alt="Amma preparing pickles in the village kitchen"
               fill
               className="object-cover"

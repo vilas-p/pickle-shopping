@@ -32,7 +32,7 @@ export default function AboutPage() {
   return (
     <>
       {/* OPENING TITLE CARD */}
-      <section className="relative overflow-hidden bg-brand-earth-900 text-white">
+      <section className="relative overflow-hidden bg-spice-wash text-white">
         <div className="container-page py-24 text-center sm:py-32">
           <p className="font-script text-2xl text-brand-secondary-300">
             A short documentary in seven scenes
@@ -53,7 +53,7 @@ export default function AboutPage() {
 
         <div className="relative mx-auto -mt-8 aspect-[16/9] w-full max-w-5xl overflow-hidden rounded-3xl bg-brand-earth-800 shadow-warm ring-1 ring-white/10">
           <Image
-            src="/images/story-grandmother.svg"
+            src="/images/about/01-kitchen-dawn.png"
             alt="Wide establishing shot of the village kitchen at dawn"
             fill
             priority
@@ -107,7 +107,7 @@ export default function AboutPage() {
 
           <figure className="relative aspect-[4/5] overflow-hidden rounded-3xl shadow-warm ring-1 ring-brand-cream-200">
             <Image
-              src="/images/about-mango-cutting.svg"
+              src="/images/about/03-village-lane-dawn.png"
               alt="A village morning — mud lane, coconut trees, slow light"
               fill
               sizes="(min-width: 768px) 45vw, 100vw"
@@ -125,7 +125,7 @@ export default function AboutPage() {
         <div className="container-page grid items-center gap-12 md:grid-cols-2">
           <figure className="relative order-last aspect-[4/5] overflow-hidden rounded-3xl shadow-warm ring-1 ring-brand-cream-200 md:order-first">
             <Image
-              src="/images/hero-pickle-jar.svg"
+              src="/images/about/05-kitchen-clay-jars.png"
               alt="The kitchen — clay jars, brass vessels, sunlight through a small window"
               fill
               sizes="(min-width: 768px) 45vw, 100vw"
@@ -251,7 +251,7 @@ export default function AboutPage() {
 
           <figure className="relative aspect-[4/5] overflow-hidden rounded-3xl shadow-warm ring-1 ring-brand-cream-200">
             <Image
-              src="/images/story-grandmother.svg"
+              src="/images/about/02-amma-cutting-mango.png"
               alt="Amma cutting mango with an old steel knife on a low wooden stool"
               fill
               sizes="(min-width: 768px) 45vw, 100vw"
@@ -379,7 +379,7 @@ export default function AboutPage() {
         <div className="grid items-center gap-12 md:grid-cols-2">
           <figure className="relative aspect-[4/5] overflow-hidden rounded-3xl shadow-warm ring-1 ring-brand-cream-200">
             <Image
-              src="/images/about-mango-cutting.svg"
+              src="/images/about/04-jar-sealed-dusk.png"
               alt="A finished jar of pickle being sealed by hand at dusk"
               fill
               sizes="(min-width: 768px) 45vw, 100vw"

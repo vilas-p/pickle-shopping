@@ -81,7 +81,7 @@ export function CheckoutForm() {
   const setSession = useAuthStore((s) => s.setSession);
   const setCustomer = useAuthStore((s) => s.setCustomer);
 
-  const [paymentMethod, setPaymentMethod] = useState<"COD" | "RAZORPAY">("COD");
+  const [paymentMethod, setPaymentMethod] = useState<"COD" | "UPI" | "RAZORPAY">("COD");
   const [localError, setLocalError] = useState("");
   const [fields, setFields] = useState<CheckoutFields>(EMPTY_FIELDS);
   const [otpStep, setOtpStep] = useState<"idle" | "sent" | "verified">("idle");
@@ -296,10 +296,10 @@ export function CheckoutForm() {
       setCustomer(order.customer);
     }
 
-    if (paymentMethod === "RAZORPAY") {
+    if (paymentMethod === "RAZORPAY" || paymentMethod === "UPI") {
       try {
         const rpData = await paymentsApi.createOrder(order.id);
-        await openRazorpayCheckout(rpData, order.orderNumber);
+        await openRazorpayCheckout(rpData, order.orderNumber, paymentMethod);
       } catch (err) {
         setLocalError(err instanceof Error ? err.message : "Payment initiation failed");
       }
@@ -313,6 +313,7 @@ export function CheckoutForm() {
   const openRazorpayCheckout = (
     rpData: { razorpayOrderId: string; amount: number; currency: string; razorpayKeyId: string; customerName: string; customerEmail: string; customerPhone: string },
     orderNumber: string,
+    paymentMode: "UPI" | "RAZORPAY",
   ) => {
     return new Promise<void>((resolve, reject) => {
       const win = window as { Razorpay?: new (opts: Record<string, unknown>) => { open: () => void } };
@@ -326,8 +327,18 @@ export function CheckoutForm() {
         amount: rpData.amount * 100, // paise
         currency: rpData.currency,
         name: config.brand.name,
-        description: `Order ${orderNumber}`,
+        description: paymentMode === "UPI" ? `UPI payment for order ${orderNumber}` : `Order ${orderNumber}`,
         order_id: rpData.razorpayOrderId,
+        method: paymentMode === "UPI"
+          ? {
+              upi: true,
+              card: false,
+              netbanking: false,
+              wallet: false,
+              emi: false,
+              paylater: false,
+            }
+          : undefined,
         prefill: {
           name: rpData.customerName,
           email: rpData.customerEmail,
@@ -814,10 +825,24 @@ export function CheckoutForm() {
                 onChange={() => setPaymentMethod("COD")}
                 className="accent-brand-primary-700" />
               <div>
-                <span className="font-medium text-brand-earth-900">Cash on Delivery / UPI on Delivery</span>
+                <span className="font-medium text-brand-earth-900">Cash on Delivery</span>
                 <p className="text-sm text-brand-earth-700/70">Pay when your order arrives</p>
               </div>
             </label>
+            {config.features.enablePayments && (
+              <label className={`flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition ${
+                paymentMethod === "UPI" ? "border-brand-primary-600 bg-brand-primary-50" : "border-brand-earth-300"
+              }`}>
+                <input type="radio" name="paymentMethodRadio" value="UPI"
+                  checked={paymentMethod === "UPI"}
+                  onChange={() => setPaymentMethod("UPI")}
+                  className="accent-brand-primary-700" />
+                <div>
+                  <span className="font-medium text-brand-earth-900">UPI payment</span>
+                  <p className="text-sm text-brand-earth-700/70">Pay online using any UPI app through Razorpay</p>
+                </div>
+              </label>
+            )}
             {config.features.enablePayments && (
               <label className={`flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition ${
                 paymentMethod === "RAZORPAY" ? "border-brand-primary-600 bg-brand-primary-50" : "border-brand-earth-300"
@@ -827,8 +852,8 @@ export function CheckoutForm() {
                   onChange={() => setPaymentMethod("RAZORPAY")}
                   className="accent-brand-primary-700" />
                 <div>
-                  <span className="font-medium text-brand-earth-900">Pay Online</span>
-                  <p className="text-sm text-brand-earth-700/70">UPI, cards, net banking via Razorpay</p>
+                  <span className="font-medium text-brand-earth-900">Cards / net banking / other online modes</span>
+                  <p className="text-sm text-brand-earth-700/70">Use Razorpay for cards, net banking, and other online payment methods</p>
                 </div>
               </label>
             )}
@@ -921,9 +946,11 @@ export function CheckoutForm() {
             ? "Placing order…"
             : !isPhoneVerified
               ? "Verify phone to continue"
-              : paymentMethod === "RAZORPAY"
-                ? "Place order & pay"
-                : "Place order (COD)"}
+              : paymentMethod === "COD"
+                ? "Place order (COD)"
+                : paymentMethod === "UPI"
+                  ? "Place order & pay with UPI"
+                  : "Place order & pay online"}
         </button>
 
         <Link href={ROUTES.cart}

@@ -4,6 +4,7 @@ import type {
   CustomerSummary,
   RequestOtpInput,
   RequestOtpResult,
+  UpdateCustomerProfileInput,
   VerifyOtpInput,
 } from "./types";
 
@@ -28,6 +29,15 @@ export const authApi = {
     return http<CustomerSummary>("/customer-auth/me", {
       method: "GET",
       auth: true,
+      cache: "no-store",
+    });
+  },
+
+  updateMe(input: UpdateCustomerProfileInput): Promise<CustomerSummary> {
+    return http<CustomerSummary>("/customer-auth/me", {
+      method: "PUT",
+      auth: true,
+      body: JSON.stringify(input),
       cache: "no-store",
     });
   },

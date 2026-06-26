@@ -39,6 +39,7 @@ npm run dev
 | Variable | Default | Purpose |
 |----------|---------|---------|
 | `NEXT_PUBLIC_API_BASE_URL` | `http://localhost:8001/api/v1` | Backend base URL |
+| `NEXT_PUBLIC_ENABLE_PAYMENTS` | `true` | Shows UPI and other online payment methods in checkout |
 | `NEXT_PUBLIC_WHATSAPP_NUMBER` | `919999999999` | WhatsApp number for deep links (no `+`) |
 | `NEXT_PUBLIC_INSTAGRAM_HANDLE` | `appaammas.pickles` | Instagram username |
 | `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | Used for canonical URLs and sitemap |

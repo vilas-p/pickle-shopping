@@ -47,4 +47,14 @@ public class CustomerAuthController {
     ) {
         return ApiResponse.ok(customerAuthService.me(principal));
     }
+
+    @Operation(summary = "Update the currently authenticated customer profile")
+    @PutMapping("/me")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ApiResponse<CustomerAuthResponse.CustomerSummary> updateMe(
+            @AuthenticationPrincipal CustomerPrincipal principal,
+            @Valid @RequestBody UpdateCustomerProfileRequest request
+    ) {
+        return ApiResponse.ok(customerAuthService.updateMe(principal, request), "Profile updated");
+    }
 }
