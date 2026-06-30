@@ -3,6 +3,8 @@ import { ContactForm } from "@/features/contact/components/ContactForm";
 import { SectionHeading } from "@/shared/ui/SectionHeading";
 import { config } from "@/shared/lib/config";
 import { instagramLink, whatsappGenericLink } from "@/shared/lib/whatsapp";
+import { ROUTES } from "@/shared/constants/routes";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Contact Us",
@@ -27,6 +29,15 @@ export default function ContactPage() {
             <a href={whatsappGenericLink()} target="_blank" rel="noreferrer" className="btn-whatsapp mt-3 w-full">
               Chat on WhatsApp
             </a>
+          </div>
+          <div className="card-warm">
+            <p className="font-display text-lg font-semibold text-brand-earth-900">Bulk Orders</p>
+            <p className="mt-1 text-sm text-brand-earth-700/85">
+              Planning a wedding, event, return gift, or reseller purchase?
+            </p>
+            <Link href={ROUTES.bulkOrders} className="btn-secondary mt-3 w-full justify-center">
+              Open Bulk Order Options
+            </Link>
           </div>
           <div className="card-warm">
             <p className="font-display text-lg font-semibold text-brand-earth-900">Email</p>

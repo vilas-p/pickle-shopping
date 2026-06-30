@@ -5,6 +5,7 @@ export const ROUTES = {
   adminDashboard: "/admin/dashboard",
   adminOrders: "/admin/orders",
   products: "/products",
+  bulkOrders: "/bulk-orders",
   productDetail: (slug: string) => `/products/${slug}`,
   cart: "/cart",
   checkout: "/checkout",

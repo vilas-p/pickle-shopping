@@ -179,6 +179,9 @@ export default async function HomePage() {
             <Link href="/order" className="btn-primary !bg-white !text-brand-primary-700 hover:!bg-brand-cream-100">
               Place an Order
             </Link>
+            <Link href="/bulk-orders" className="btn-secondary !border-white !text-white hover:!bg-white/10">
+              Bulk Order Enquiry
+            </Link>
             <Link href="/contact" className="btn-secondary !border-white !text-white hover:!bg-white/10">
               Talk to Us
             </Link>

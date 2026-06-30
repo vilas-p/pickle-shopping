@@ -8,6 +8,7 @@ import { ROUTES } from "@/shared/constants/routes";
 const NAV = [
   { href: ROUTES.home, label: "Home" },
   { href: ROUTES.products, label: "Products" },
+  { href: ROUTES.bulkOrders, label: "Bulk Orders" },
   { href: ROUTES.about, label: "About" },
   { href: ROUTES.reviews, label: "Reviews" },
   { href: ROUTES.faq, label: "FAQ" },

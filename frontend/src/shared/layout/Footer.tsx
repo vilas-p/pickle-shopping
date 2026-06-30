@@ -28,6 +28,7 @@ export function Footer() {
           <h4 className="font-display text-lg text-white">Shop</h4>
           <ul className="mt-3 space-y-2 text-sm text-brand-cream-200/85">
             <li><Link href="/products" className="hover:text-brand-accent-300">All Pickles</Link></li>
+            <li><Link href="/bulk-orders" className="hover:text-brand-accent-300">Bulk Orders</Link></li>
             <li><Link href="/products?category=mango" className="hover:text-brand-accent-300">Mango Pickle</Link></li>
             <li><Link href="/products?category=lemon" className="hover:text-brand-accent-300">Lemon Pickle</Link></li>
             <li><Link href="/products?category=bitter-gourd" className="hover:text-brand-accent-300">Bitter Gourd Pickle</Link></li>
@@ -41,6 +42,7 @@ export function Footer() {
             <li><Link href="/reviews" className="hover:text-brand-accent-300">Reviews</Link></li>
             <li><Link href="/faq" className="hover:text-brand-accent-300">FAQ</Link></li>
             <li><Link href="/contact" className="hover:text-brand-accent-300">Contact</Link></li>
+            <li><Link href="/bulk-orders" className="hover:text-brand-accent-300">Wedding & Bulk Orders</Link></li>
           </ul>
         </div>
 
