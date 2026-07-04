@@ -34,6 +34,29 @@ function matchesLine(l: CartLine, productId: number, variantId?: number) {
   return l.productId === productId && l.variantId === variantId;
 }
 
+function mergeCartLines(existingItems: CartLine[], incomingItems: CartLine[]): CartLine[] {
+  const mergedItems = [...existingItems];
+
+  for (const incoming of incomingItems) {
+    const existingIndex = mergedItems.findIndex((line) =>
+      matchesLine(line, incoming.productId, incoming.variantId)
+    );
+
+    if (existingIndex === -1) {
+      mergedItems.push(incoming);
+      continue;
+    }
+
+    const existing = mergedItems[existingIndex];
+    mergedItems[existingIndex] = {
+      ...existing,
+      quantity: clampQty(existing.quantity + incoming.quantity),
+    };
+  }
+
+  return mergedItems;
+}
+
 interface CartState {
   items: CartLine[];
   itemsByOwner: Record<string, CartLine[]>;
@@ -64,10 +87,27 @@ export const useCartStore = create<CartState>()(
       hasHydrated: false,
       setHasHydrated: (v) => set({ hasHydrated: v }),
       setOwnerKey: (ownerKey) =>
-        set((state) => ({
-          activeOwnerKey: ownerKey,
-          items: ownerItems(state.itemsByOwner, ownerKey),
-        })),
+        set((state) => {
+          const currentOwnerKey = state.activeOwnerKey;
+          const currentOwnerItems = ownerItems(state.itemsByOwner, currentOwnerKey);
+          const nextOwnerItems = ownerItems(state.itemsByOwner, ownerKey);
+
+          if (currentOwnerKey === GUEST_OWNER_KEY && ownerKey !== GUEST_OWNER_KEY && currentOwnerItems.length > 0) {
+            const mergedItems = mergeCartLines(nextOwnerItems, currentOwnerItems);
+            const itemsWithoutGuest = updateOwnerItems(state.itemsByOwner, GUEST_OWNER_KEY, []);
+
+            return {
+              activeOwnerKey: ownerKey,
+              items: mergedItems,
+              itemsByOwner: updateOwnerItems(itemsWithoutGuest, ownerKey, mergedItems),
+            };
+          }
+
+          return {
+            activeOwnerKey: ownerKey,
+            items: nextOwnerItems,
+          };
+        }),
       add: (input) =>
         set((state) => {
           const addQty = clampQty(input.quantity ?? 1);

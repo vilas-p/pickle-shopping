@@ -33,6 +33,17 @@ public class CustomerAuthController {
                 .body(ApiResponse.ok(body, "OTP sent"));
     }
 
+        @Operation(summary = "Resend an OTP for login (sent via SMS or email)")
+        @PostMapping("/otp/resend")
+        public ResponseEntity<ApiResponse<RequestOtpResponse>> resendOtp(
+            @Valid @RequestBody RequestOtpRequest request,
+            HttpServletRequest http
+        ) {
+        RequestOtpResponse body = customerAuthService.resendLoginOtp(request, http);
+        return ResponseEntity.status(HttpStatus.ACCEPTED)
+            .body(ApiResponse.ok(body, "OTP resent"));
+        }
+
     @Operation(summary = "Verify the OTP and exchange it for a customer access token")
     @PostMapping("/otp/verify")
     public ApiResponse<CustomerAuthResponse> verifyOtp(@Valid @RequestBody VerifyOtpRequest request) {

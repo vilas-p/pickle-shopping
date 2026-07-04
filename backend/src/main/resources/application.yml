@@ -35,7 +35,7 @@ spring:
       write-dates-as-timestamps: false
 
 server:
-  port: ${SERVER_PORT:8001}
+  port: ${SERVER_PORT:8002}
   servlet:
     context-path: /
   compression:
@@ -60,9 +60,47 @@ app:
     max-attempts: ${APP_OTP_MAX_ATTEMPTS:5}
     rate-limit-max-per-window: ${APP_OTP_RATE_MAX:5}
     rate-limit-window: ${APP_OTP_RATE_WINDOW:PT15M}
+    provider: ${APP_OTP_PROVIDER:DEV}
+    expose-debug-code: ${APP_OTP_EXPOSE_DEBUG_CODE:true}
+    http:
+      url: ${APP_OTP_HTTP_URL:}
+      auth-header-name: ${APP_OTP_HTTP_AUTH_HEADER_NAME:Authorization}
+      auth-token: ${APP_OTP_HTTP_AUTH_TOKEN:}
+      channel-name: ${APP_OTP_HTTP_CHANNEL_NAME:http}
+      message-template: ${APP_OTP_HTTP_MESSAGE_TEMPLATE:Your Appa & Amma's Pickles {{purpose}} code is {{code}}. It expires in {{ttlMinutes}} minutes.}
+  notification:
+    max-attempts: ${APP_NOTIFICATION_MAX_ATTEMPTS:3}
+    retry-backoff: ${APP_NOTIFICATION_RETRY_BACKOFF:PT5M}
+    retry-scan-interval: ${APP_NOTIFICATION_RETRY_SCAN_INTERVAL:60000}
+    async-enabled: ${APP_NOTIFICATION_ASYNC_ENABLED:true}
+    sms:
+      provider: ${APP_NOTIFICATION_SMS_PROVIDER:MOCK}
+      msg91-base-url: ${APP_NOTIFICATION_SMS_MSG91_BASE_URL:https://api.msg91.com/api/v5/flow/}
+      msg91-auth-key: ${APP_NOTIFICATION_SMS_MSG91_AUTH_KEY:}
+      msg91-sender-id: ${APP_NOTIFICATION_SMS_MSG91_SENDER_ID:APPAAM}
+      twilio-base-url: ${APP_NOTIFICATION_SMS_TWILIO_BASE_URL:https://api.twilio.com/2010-04-01/Accounts/${APP_NOTIFICATION_SMS_TWILIO_ACCOUNT_SID}/Messages.json}
+      twilio-account-sid: ${APP_NOTIFICATION_SMS_TWILIO_ACCOUNT_SID:}
+      twilio-auth-token: ${APP_NOTIFICATION_SMS_TWILIO_AUTH_TOKEN:}
+      twilio-from-number: ${APP_NOTIFICATION_SMS_TWILIO_FROM_NUMBER:}
+    whatsapp:
+      provider: ${APP_NOTIFICATION_WHATSAPP_PROVIDER:MOCK}
+      base-url: ${APP_NOTIFICATION_WHATSAPP_BASE_URL:https://graph.facebook.com/v20.0/${APP_NOTIFICATION_WHATSAPP_PHONE_NUMBER_ID}/messages}
+      access-token: ${APP_NOTIFICATION_WHATSAPP_ACCESS_TOKEN:}
+      phone-number-id: ${APP_NOTIFICATION_WHATSAPP_PHONE_NUMBER_ID:}
+      sender-name: ${APP_NOTIFICATION_WHATSAPP_SENDER_NAME:Appa & Amma's Pickles}
+    email:
+      provider: ${APP_NOTIFICATION_EMAIL_PROVIDER:MOCK}
+      resend-base-url: ${APP_NOTIFICATION_EMAIL_RESEND_BASE_URL:https://api.resend.com/emails}
+      resend-api-key: ${APP_NOTIFICATION_EMAIL_RESEND_API_KEY:}
+      resend-from-address: ${APP_NOTIFICATION_EMAIL_RESEND_FROM_ADDRESS:noreply@appaammas.in}
+      ses-endpoint-url: ${APP_NOTIFICATION_EMAIL_SES_ENDPOINT_URL:}
+      ses-access-key: ${APP_NOTIFICATION_EMAIL_SES_ACCESS_KEY:}
+      ses-secret-key: ${APP_NOTIFICATION_EMAIL_SES_SECRET_KEY:}
+      ses-region: ${APP_NOTIFICATION_EMAIL_SES_REGION:ap-south-1}
+      ses-from-address: ${APP_NOTIFICATION_EMAIL_SES_FROM_ADDRESS:noreply@appaammas.in}
   razorpay:
-    key-id: ${RAZORPAY_KEY_ID:rzp_test_placeholder}
-    key-secret: ${RAZORPAY_KEY_SECRET:placeholder_secret}
+    key-id: ${RAZORPAY_KEY_ID:rzp_test_T7nwEJPZkW0BbI}
+    key-secret: ${RAZORPAY_KEY_SECRET:zM6mY9bkli4Gld7SErnUIreb}
   store-location:
     label: ${APP_STORE_LOCATION_LABEL:Appa & Amma's Village Kitchen}
     line1: ${APP_STORE_LOCATION_LINE1:Village Kitchen Dispatch Centre}

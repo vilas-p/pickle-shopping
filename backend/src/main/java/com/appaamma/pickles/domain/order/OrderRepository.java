@@ -28,4 +28,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     long countByStatus(OrderStatus status);
     long countByCreatedAtAfter(Instant after);
+
+    Optional<Order> findByShippingAddressId(Long addressId);
 }

@@ -137,6 +137,7 @@ export function AdminDashboard() {
 
   const attentionItems = [
     { label: "Pending orders", value: data.pendingOrders, note: "Open the orders page and move confirmations forward." },
+    { label: "Unread contacts", value: data.unhandledContacts, note: "Open the contacts inbox and reply to customers waiting for a response." },
     { label: "Low stock items", value: data.lowStockItems, note: "Review items at risk and replenish or pause them." },
     { label: "Pending reviews", value: data.pendingReviews, note: "Approve fresh feedback so it shows on the storefront." },
   ];
@@ -195,6 +196,10 @@ export function AdminDashboard() {
               <Link href={ROUTES.adminOrders} className="rounded-2xl border border-brand-cream-200 bg-white px-4 py-4 transition hover:border-brand-primary-300 hover:bg-brand-cream-50">
                 <p className="font-semibold text-brand-earth-900">Manage orders</p>
                 <p className="mt-1 text-sm text-brand-earth-700/80">Review, pack, ship, and close orders.</p>
+              </Link>
+              <Link href={ROUTES.adminContacts} className="rounded-2xl border border-brand-cream-200 bg-white px-4 py-4 transition hover:border-brand-primary-300 hover:bg-brand-cream-50">
+                <p className="font-semibold text-brand-earth-900">Review contacts</p>
+                <p className="mt-1 text-sm text-brand-earth-700/80">Read customer messages and mark follow-up as handled.</p>
               </Link>
               <Link href={ROUTES.products} className="rounded-2xl border border-brand-cream-200 bg-white px-4 py-4 transition hover:border-brand-primary-300 hover:bg-brand-cream-50">
                 <p className="font-semibold text-brand-earth-900">View storefront</p>

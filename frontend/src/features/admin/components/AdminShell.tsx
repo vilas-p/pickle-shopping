@@ -7,6 +7,7 @@ import { selectAdminUser, useAdminAuthStore } from "@/features/admin/auth/store"
 
 const navItems = [
   { href: ROUTES.adminDashboard, label: "Dashboard" },
+  { href: ROUTES.adminContacts, label: "Contacts" },
   { href: ROUTES.adminOrders, label: "Orders" },
 ];
 

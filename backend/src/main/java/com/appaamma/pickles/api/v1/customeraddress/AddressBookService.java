@@ -6,7 +6,9 @@ import com.appaamma.pickles.domain.customer.Address;
 import com.appaamma.pickles.domain.customer.AddressRepository;
 import com.appaamma.pickles.domain.customer.Customer;
 import com.appaamma.pickles.domain.customer.CustomerRepository;
+import com.appaamma.pickles.domain.order.Order;
 import com.appaamma.pickles.domain.order.OrderRepository;
+import com.appaamma.pickles.domain.order.OrderStatus;
 import com.appaamma.pickles.exception.BadRequestException;
 import com.appaamma.pickles.exception.ResourceNotFoundException;
 import com.appaamma.pickles.security.CustomerPrincipal;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -82,7 +85,9 @@ public class AddressBookService {
         Address address = addressRepository.findByIdAndCustomerId(addressId, principal.customerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Address", "id", addressId));
 
-        if (orderRepository.existsByShippingAddressId(addressId)) {
+        Optional<Order> order = orderRepository.findByShippingAddressId(addressId);
+
+        if (order.isPresent() && order.get().getStatus() != OrderStatus.DELIVERED && order.get().getStatus() != OrderStatus.CANCELLED) {
             throw new BadRequestException("This address is linked to an existing order and cannot be deleted");
         }
 

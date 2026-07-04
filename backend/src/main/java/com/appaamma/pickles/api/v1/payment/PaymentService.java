@@ -1,5 +1,7 @@
 package com.appaamma.pickles.api.v1.payment;
 
+import com.appaamma.pickles.api.v1.notification.event.NotificationOrderContext;
+import com.appaamma.pickles.api.v1.notification.event.PaymentSuccessEvent;
 import com.appaamma.pickles.api.v1.payment.dto.CreatePaymentOrderRequest;
 import com.appaamma.pickles.api.v1.payment.dto.PaymentOrderResponse;
 import com.appaamma.pickles.api.v1.payment.dto.VerifyPaymentRequest;
@@ -13,10 +15,12 @@ import com.razorpay.RazorpayException;
 import com.razorpay.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -26,13 +30,16 @@ public class PaymentService {
     private final RazorpayProperties razorpayProperties;
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     public PaymentService(RazorpayProperties razorpayProperties,
                           OrderRepository orderRepository,
-                          PaymentRepository paymentRepository) {
+                          PaymentRepository paymentRepository,
+                          ApplicationEventPublisher applicationEventPublisher) {
         this.razorpayProperties = razorpayProperties;
         this.orderRepository = orderRepository;
         this.paymentRepository = paymentRepository;
+        this.applicationEventPublisher = applicationEventPublisher;
         try {
             this.razorpayClient = new RazorpayClient(razorpayProperties.keyId(), razorpayProperties.keySecret());
         } catch (RazorpayException e) {
@@ -131,6 +138,20 @@ public class PaymentService {
             order.setStatus(OrderStatus.CONFIRMED);
             orderRepository.save(order);
         }
+
+        applicationEventPublisher.publishEvent(new PaymentSuccessEvent(new NotificationOrderContext(
+            order.getCustomer().getFullName(),
+            order.getCustomer().getEmail(),
+            order.getCustomer().getPhone(),
+            order.getOrderNumber(),
+            order.getTotal(),
+            order.getItems().stream()
+                .map(item -> item.getProductName() + " x" + item.getQuantity())
+                .collect(Collectors.joining(", ")),
+            "",
+            "",
+            "/reviews?order=" + order.getOrderNumber()
+        )));
 
         log.info("Payment verified for order {}: razorpay_payment_id={}", order.getOrderNumber(), req.razorpayPaymentId());
     }

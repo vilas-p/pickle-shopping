@@ -1,10 +1,12 @@
 package com.appaamma.pickles.api.v1.customerauth;
 
 import com.appaamma.pickles.config.OtpProperties;
+import com.appaamma.pickles.api.v1.notification.event.LoginOtpRequestedEvent;
 import com.appaamma.pickles.domain.otp.*;
 import com.appaamma.pickles.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +25,7 @@ import java.time.Instant;
 public class OtpService {
 
     private final OtpRepository otpRepository;
-    private final OtpSender otpSender;
+    private final ApplicationEventPublisher applicationEventPublisher;
     private final PasswordEncoder passwordEncoder;
     private final OtpProperties props;
     private final SecureRandom random = new SecureRandom();
@@ -60,11 +62,19 @@ public class OtpService {
                 .build();
         otpRepository.save(token);
 
-        String channel = otpSender.send(kind, normalised, code, purpose);
+            String channel = kind == OtpIdentifierKind.PHONE ? "sms" : "email";
+            applicationEventPublisher.publishEvent(new LoginOtpRequestedEvent(
+                kind,
+                normalised,
+                "Customer",
+                code,
+                Math.max(1, props.ttl().toMinutes())
+            ));
         log.info("OTP issued: purpose={} kind={} channel={} ttlSeconds={}",
                 purpose, kind, channel, props.ttl().toSeconds());
 
-        return new IssueResult(channel, token.getExpiresAt());
+            String debugCode = props.exposeDebugCode() ? code : null;
+            return new IssueResult(channel, token.getExpiresAt(), debugCode);
     }
 
     /**
@@ -118,5 +128,5 @@ public class OtpService {
         return sb.toString();
     }
 
-    public record IssueResult(String channel, Instant expiresAt) {}
+    public record IssueResult(String channel, Instant expiresAt, String debugCode) {}
 }

@@ -1,6 +1,11 @@
 package com.appaamma.pickles.api.v1.order;
 
 import com.appaamma.pickles.api.v1.order.OrderPricingService.PricedOrder;
+import com.appaamma.pickles.api.v1.notification.event.NotificationOrderContext;
+import com.appaamma.pickles.api.v1.notification.event.OrderDeliveredEvent;
+import com.appaamma.pickles.api.v1.notification.event.OrderPackedEvent;
+import com.appaamma.pickles.api.v1.notification.event.OrderPlacedEvent;
+import com.appaamma.pickles.api.v1.notification.event.OrderShippedEvent;
 import com.appaamma.pickles.api.v1.order.dto.CreateOrderRequest;
 import com.appaamma.pickles.api.v1.order.dto.OrderResponse;
 import com.appaamma.pickles.common.PageResponse;
@@ -18,12 +23,14 @@ import com.appaamma.pickles.exception.BadRequestException;
 import com.appaamma.pickles.exception.ResourceNotFoundException;
 import com.appaamma.pickles.security.CustomerPrincipal;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +45,7 @@ public class OrderService {
     private final OrderNumberGenerator orderNumberGenerator;
     private final OrderMapper orderMapper;
     private final AddressRepository addressRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
     public OrderResponse createOrder(CreateOrderRequest req, CustomerPrincipal principal) {
@@ -109,7 +117,9 @@ public class OrderService {
         order.setShippingFee(priced.shippingFee());
         order.setTotal(priced.total());
 
-        return orderMapper.toResponse(orderRepository.save(order));
+        Order saved = orderRepository.save(order);
+        applicationEventPublisher.publishEvent(new OrderPlacedEvent(toNotificationContext(saved)));
+        return orderMapper.toResponse(saved);
     }
 
     @Transactional(readOnly = true)
@@ -162,7 +172,9 @@ public class OrderService {
                     "Illegal status transition: " + order.getStatus() + " → " + newStatus);
         }
         order.setStatus(newStatus);
-        return orderMapper.toResponse(orderRepository.save(order));
+        Order saved = orderRepository.save(order);
+        publishOrderStatusEvent(saved);
+        return orderMapper.toResponse(saved);
     }
 
     /**
@@ -263,5 +275,32 @@ public class OrderService {
 
     private String normalisePhone(String value) {
         return value == null ? "" : value.replaceAll("\\D", "");
+    }
+
+    private void publishOrderStatusEvent(Order order) {
+        NotificationOrderContext context = toNotificationContext(order);
+        switch (order.getStatus()) {
+            case PACKED -> applicationEventPublisher.publishEvent(new OrderPackedEvent(context));
+            case SHIPPED -> applicationEventPublisher.publishEvent(new OrderShippedEvent(context));
+            case DELIVERED -> applicationEventPublisher.publishEvent(new OrderDeliveredEvent(context));
+            default -> {
+            }
+        }
+    }
+
+    private NotificationOrderContext toNotificationContext(Order order) {
+        return new NotificationOrderContext(
+                order.getCustomer().getFullName(),
+                order.getCustomer().getEmail(),
+                order.getCustomer().getPhone(),
+                order.getOrderNumber(),
+                order.getTotal(),
+                order.getItems().stream()
+                        .map(item -> item.getProductName() + " x" + item.getQuantity())
+                        .collect(Collectors.joining(", ")),
+                "",
+                "",
+                "/reviews?order=" + order.getOrderNumber()
+        );
     }
 }

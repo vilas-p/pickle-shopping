@@ -55,6 +55,23 @@ function normalisePhone(value: string): string {
   return value.replace(/\D/g, "");
 }
 
+function formatPhoneForRazorpay(value: string): string {
+  const digits = normalisePhone(value);
+  if (!digits) {
+    return "";
+  }
+
+  if (digits.startsWith("91") && digits.length === 12) {
+    return `+${digits}`;
+  }
+
+  if (digits.length === 10) {
+    return `+91${digits}`;
+  }
+
+  return `+${digits}`;
+}
+
 function isPlaceholderEmail(email: string): boolean {
   return email.endsWith("@appaamma.local");
 }
@@ -66,6 +83,15 @@ function addressMatchesFields(address: AddressBookEntry, fields: CheckoutFields)
     && address.state.trim().toLowerCase() === fields.state.trim().toLowerCase()
     && address.pincode.trim() === fields.pincode.trim()
     && (address.landmark ?? "").trim().toLowerCase() === fields.landmark.trim().toLowerCase();
+}
+
+function hasAddressDetails(fields: CheckoutFields): boolean {
+  return Boolean(
+    fields.line1.trim()
+      && fields.city.trim()
+      && fields.state.trim()
+      && /^[1-9][0-9]{5}$/.test(fields.pincode.trim())
+  );
 }
 
 export function CheckoutForm() {
@@ -104,6 +130,9 @@ export function CheckoutForm() {
   const normalizedEnteredPhone = normalisePhone(fields.phone);
   const isPhoneVerified = verifiedPhone != null && verifiedPhone === normalizedEnteredPhone;
   const selectedSavedAddress = savedAddresses.find((address) => address.id === selectedAddressId) ?? null;
+  const isAddressStepComplete = isPhoneVerified && (
+    (!showNewAddressForm && selectedSavedAddress != null) || hasAddressDetails(fields)
+  );
   const estimateCity = !showNewAddressForm && selectedSavedAddress
     ? selectedSavedAddress.city
     : fields.city;
@@ -265,6 +294,11 @@ export function CheckoutForm() {
       return;
     }
 
+    if (!isAddressStepComplete) {
+      setLocalError("Add or select a shipping address before continuing to payment.");
+      return;
+    }
+
     const payload: CreateOrderPayload = {
       customer: {
         fullName: fields.fullName.trim(),
@@ -322,6 +356,32 @@ export function CheckoutForm() {
         return;
       }
 
+      const upiFirstDisplayConfig = paymentMode === "UPI"
+        ? {
+            display: {
+              blocks: {
+                preferredUpi: {
+                  name: "Pay by UPI",
+                  instruments: [{ method: "upi" }],
+                },
+                otherOnlineModes: {
+                  name: "Other online methods",
+                  instruments: [
+                    { method: "card" },
+                    { method: "netbanking" },
+                    { method: "wallet" },
+                    { method: "paylater" },
+                  ],
+                },
+              },
+              sequence: ["block.preferredUpi", "block.otherOnlineModes"],
+              preferences: {
+                show_default_blocks: false,
+              },
+            },
+          }
+        : undefined;
+
       const rp = new win.Razorpay({
         key: rpData.razorpayKeyId,
         amount: rpData.amount * 100, // paise
@@ -329,20 +389,17 @@ export function CheckoutForm() {
         name: config.brand.name,
         description: paymentMode === "UPI" ? `UPI payment for order ${orderNumber}` : `Order ${orderNumber}`,
         order_id: rpData.razorpayOrderId,
-        method: paymentMode === "UPI"
-          ? {
-              upi: true,
-              card: false,
-              netbanking: false,
-              wallet: false,
-              emi: false,
-              paylater: false,
-            }
-          : undefined,
+        method: paymentMode === "UPI" ? "upi" : undefined,
         prefill: {
           name: rpData.customerName,
           email: rpData.customerEmail,
-          contact: rpData.customerPhone,
+          contact: formatPhoneForRazorpay(rpData.customerPhone),
+        },
+        config: upiFirstDisplayConfig,
+        readonly: {
+          contact: true,
+          email: true,
+          name: true,
         },
         theme: { color: "#b91c1c" }, // brand-primary-700
         handler: async (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
@@ -475,7 +532,7 @@ export function CheckoutForm() {
         {/* Contact details */}
         <fieldset className="card-warm" disabled={isSubmitting}>
           <legend className="font-display text-xl font-bold text-brand-earth-900 mb-4">
-            Contact details
+            Step 1: Contact details
           </legend>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
@@ -582,11 +639,11 @@ export function CheckoutForm() {
         </fieldset>
 
         {/* Shipping address */}
-        <fieldset className="card-warm" disabled={isSubmitting}>
-          <legend className="font-display text-xl font-bold text-brand-earth-900 mb-4">
-            Shipping address
-          </legend>
-          {isPhoneVerified && (
+        {isPhoneVerified ? (
+          <fieldset className="card-warm" disabled={isSubmitting}>
+            <legend className="font-display text-xl font-bold text-brand-earth-900 mb-4">
+              Step 2: Shipping address
+            </legend>
             <div className="mb-6 space-y-3">
               <div className="flex items-center justify-between gap-3">
                 <p className="text-sm font-medium text-brand-earth-900">Saved addresses</p>
@@ -665,217 +722,234 @@ export function CheckoutForm() {
                 </p>
               )}
             </div>
-          )}
 
-          {!showNewAddressForm && selectedSavedAddress ? (
-            <div className="rounded-2xl border border-brand-cream-200 bg-brand-cream-50/60 p-4">
-              <p className="text-sm font-medium text-brand-earth-900">Deliver to</p>
-              <address className="mt-2 not-italic text-sm leading-relaxed text-brand-earth-800">
-                <div>{selectedSavedAddress.line1}</div>
-                {selectedSavedAddress.line2 && <div>{selectedSavedAddress.line2}</div>}
-                <div>{selectedSavedAddress.city}, {selectedSavedAddress.state} {selectedSavedAddress.pincode}</div>
-                {selectedSavedAddress.landmark && <div>Landmark: {selectedSavedAddress.landmark}</div>}
-              </address>
-              <button
-                type="button"
-                onClick={chooseNewAddress}
-                className="mt-4 text-sm font-medium text-brand-primary-700 hover:underline"
-              >
-                Use a different address
-              </button>
-            </div>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="sm:col-span-2">
-                <label htmlFor="line1" className="label-field">Address line 1</label>
-                <input
-                  id="line1"
-                  name="line1"
-                  required
-                  value={fields.line1}
-                  onChange={(e) => updateField("line1", e.target.value)}
-                  className="input-field"
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <label htmlFor="line2" className="label-field">Address line 2 (optional)</label>
-                <input
-                  id="line2"
-                  name="line2"
-                  value={fields.line2}
-                  onChange={(e) => updateField("line2", e.target.value)}
-                  className="input-field"
-                />
-              </div>
-              <div>
-                <label htmlFor="city" className="label-field">City</label>
-                <input
-                  id="city"
-                  name="city"
-                  required
-                  value={fields.city}
-                  onChange={(e) => updateField("city", e.target.value)}
-                  className="input-field"
-                />
-              </div>
-              <div>
-                <label htmlFor="state" className="label-field">State</label>
-                <select
-                  id="state"
-                  name="state"
-                  required
-                  value={fields.state}
-                  onChange={(e) => updateField("state", e.target.value)}
-                  className="input-field"
+            {!showNewAddressForm && selectedSavedAddress ? (
+              <div className="rounded-2xl border border-brand-cream-200 bg-brand-cream-50/60 p-4">
+                <p className="text-sm font-medium text-brand-earth-900">Deliver to</p>
+                <address className="mt-2 not-italic text-sm leading-relaxed text-brand-earth-800">
+                  <div>{selectedSavedAddress.line1}</div>
+                  {selectedSavedAddress.line2 && <div>{selectedSavedAddress.line2}</div>}
+                  <div>{selectedSavedAddress.city}, {selectedSavedAddress.state} {selectedSavedAddress.pincode}</div>
+                  {selectedSavedAddress.landmark && <div>Landmark: {selectedSavedAddress.landmark}</div>}
+                </address>
+                <button
+                  type="button"
+                  onClick={chooseNewAddress}
+                  className="mt-4 text-sm font-medium text-brand-primary-700 hover:underline"
                 >
-                  <option value="">Select state</option>
-                  {INDIA_STATES.map((s) => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
+                  Use a different address
+                </button>
               </div>
-              <div>
-                <label htmlFor="pincode" className="label-field">Pincode</label>
-                <input
-                  id="pincode"
-                  name="pincode"
-                  required
-                  pattern="^[1-9][0-9]{5}$"
-                  placeholder="e.g. 500001"
-                  value={fields.pincode}
-                  onChange={(e) => updateField("pincode", e.target.value)}
-                  className="input-field"
-                />
-              </div>
-              <div>
-                <label htmlFor="landmark" className="label-field">Landmark (optional)</label>
-                <input
-                  id="landmark"
-                  name="landmark"
-                  value={fields.landmark}
-                  onChange={(e) => updateField("landmark", e.target.value)}
-                  className="input-field"
-                />
-              </div>
-            </div>
-          )}
-
-          {deliveryEstimateStatus !== "idle" && (
-            <div className="mt-6 rounded-2xl border border-brand-cream-200 bg-white/70 p-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="text-sm font-medium text-brand-earth-900">Estimated delivery route</p>
-                  <p className="text-xs uppercase tracking-[0.16em] text-brand-earth-700/70">
-                    {deliveryEstimate?.serviceLevel ?? "Calculating"}
-                  </p>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="sm:col-span-2">
+                  <label htmlFor="line1" className="label-field">Address line 1</label>
+                  <input
+                    id="line1"
+                    name="line1"
+                    required={isPhoneVerified}
+                    value={fields.line1}
+                    onChange={(e) => updateField("line1", e.target.value)}
+                    className="input-field"
+                  />
                 </div>
-                {deliveryEstimateStatus === "loading" && (
-                  <span className="text-sm text-brand-earth-700/70">Calculating...</span>
+                <div className="sm:col-span-2">
+                  <label htmlFor="line2" className="label-field">Address line 2 (optional)</label>
+                  <input
+                    id="line2"
+                    name="line2"
+                    value={fields.line2}
+                    onChange={(e) => updateField("line2", e.target.value)}
+                    className="input-field"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="city" className="label-field">City</label>
+                  <input
+                    id="city"
+                    name="city"
+                    required={isPhoneVerified}
+                    value={fields.city}
+                    onChange={(e) => updateField("city", e.target.value)}
+                    className="input-field"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="state" className="label-field">State</label>
+                  <select
+                    id="state"
+                    name="state"
+                    required={isPhoneVerified}
+                    value={fields.state}
+                    onChange={(e) => updateField("state", e.target.value)}
+                    className="input-field"
+                  >
+                    <option value="">Select state</option>
+                    {INDIA_STATES.map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="pincode" className="label-field">Pincode</label>
+                  <input
+                    id="pincode"
+                    name="pincode"
+                    required={isPhoneVerified}
+                    pattern="^[1-9][0-9]{5}$"
+                    placeholder="e.g. 500001"
+                    value={fields.pincode}
+                    onChange={(e) => updateField("pincode", e.target.value)}
+                    className="input-field"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="landmark" className="label-field">Landmark (optional)</label>
+                  <input
+                    id="landmark"
+                    name="landmark"
+                    value={fields.landmark}
+                    onChange={(e) => updateField("landmark", e.target.value)}
+                    className="input-field"
+                  />
+                </div>
+              </div>
+            )}
+
+            {deliveryEstimateStatus !== "idle" && (
+              <div className="mt-6 rounded-2xl border border-brand-cream-200 bg-white/70 p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-brand-earth-900">Estimated delivery route</p>
+                    <p className="text-xs uppercase tracking-[0.16em] text-brand-earth-700/70">
+                      {deliveryEstimate?.serviceLevel ?? "Calculating"}
+                    </p>
+                  </div>
+                  {deliveryEstimateStatus === "loading" && (
+                    <span className="text-sm text-brand-earth-700/70">Calculating...</span>
+                  )}
+                </div>
+
+                {deliveryEstimateStatus === "error" && (
+                  <p className="mt-3 text-sm text-red-600">{deliveryEstimateMessage}</p>
+                )}
+
+                {deliveryEstimate && (
+                  <>
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                      <div className="rounded-2xl bg-brand-cream-50 px-4 py-3 text-sm text-brand-earth-800">
+                        <p className="text-xs uppercase tracking-[0.16em] text-brand-earth-700/70">From</p>
+                        <p className="mt-1 font-medium text-brand-earth-900">{deliveryEstimate.store.label}</p>
+                        <p>{deliveryEstimate.store.city}, {deliveryEstimate.store.state} {deliveryEstimate.store.pincode}</p>
+                      </div>
+                      <div className="rounded-2xl bg-brand-cream-50 px-4 py-3 text-sm text-brand-earth-800">
+                        <p className="text-xs uppercase tracking-[0.16em] text-brand-earth-700/70">To</p>
+                        <p className="mt-1 font-medium text-brand-earth-900">Customer shipping address</p>
+                        <p>{estimateCity.trim()}, {estimateState.trim()} {estimatePincode.trim()}</p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap gap-3 text-sm">
+                      <span className="rounded-full bg-brand-primary-50 px-3 py-1 font-medium text-brand-primary-700 ring-1 ring-brand-primary-100">
+                        Distance: ~{deliveryEstimate.estimatedDistanceKm} km
+                      </span>
+                      <span className="rounded-full bg-brand-secondary-100 px-3 py-1 font-medium text-brand-earth-800 ring-1 ring-brand-secondary-200">
+                        ETA: {deliveryEstimate.estimatedDeliveryWindow}
+                      </span>
+                    </div>
+
+                    <p className="mt-3 text-xs text-brand-earth-700/70">
+                      Estimate is based on the store dispatch location and shipping pincode zone. Final courier timing can vary slightly.
+                    </p>
+                  </>
                 )}
               </div>
-
-              {deliveryEstimateStatus === "error" && (
-                <p className="mt-3 text-sm text-red-600">{deliveryEstimateMessage}</p>
-              )}
-
-              {deliveryEstimate && (
-                <>
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-2xl bg-brand-cream-50 px-4 py-3 text-sm text-brand-earth-800">
-                      <p className="text-xs uppercase tracking-[0.16em] text-brand-earth-700/70">From</p>
-                      <p className="mt-1 font-medium text-brand-earth-900">{deliveryEstimate.store.label}</p>
-                      <p>{deliveryEstimate.store.city}, {deliveryEstimate.store.state} {deliveryEstimate.store.pincode}</p>
-                    </div>
-                    <div className="rounded-2xl bg-brand-cream-50 px-4 py-3 text-sm text-brand-earth-800">
-                      <p className="text-xs uppercase tracking-[0.16em] text-brand-earth-700/70">To</p>
-                      <p className="mt-1 font-medium text-brand-earth-900">Customer shipping address</p>
-                      <p>{estimateCity.trim()}, {estimateState.trim()} {estimatePincode.trim()}</p>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 flex flex-wrap gap-3 text-sm">
-                    <span className="rounded-full bg-brand-primary-50 px-3 py-1 font-medium text-brand-primary-700 ring-1 ring-brand-primary-100">
-                      Distance: ~{deliveryEstimate.estimatedDistanceKm} km
-                    </span>
-                    <span className="rounded-full bg-brand-secondary-100 px-3 py-1 font-medium text-brand-earth-800 ring-1 ring-brand-secondary-200">
-                      ETA: {deliveryEstimate.estimatedDeliveryWindow}
-                    </span>
-                  </div>
-
-                  <p className="mt-3 text-xs text-brand-earth-700/70">
-                    Estimate is based on the store dispatch location and shipping pincode zone. Final courier timing can vary slightly.
-                  </p>
-                </>
-              )}
-            </div>
-          )}
-        </fieldset>
+            )}
+          </fieldset>
+        ) : (
+          <div className="card-warm border border-dashed border-brand-cream-300 bg-brand-cream-50/70">
+            <h2 className="font-display text-xl font-bold text-brand-earth-900">Step 2: Shipping address</h2>
+            <p className="mt-2 text-sm text-brand-earth-700/75">
+              This step will open after the mobile number is verified.
+            </p>
+          </div>
+        )}
 
         {/* Payment method */}
-        <fieldset className="card-warm" disabled={isSubmitting}>
-          <legend className="font-display text-xl font-bold text-brand-earth-900 mb-4">
-            Payment method
-          </legend>
-          <div className="space-y-3">
-            <label className={`flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition ${
-              paymentMethod === "COD" ? "border-brand-primary-600 bg-brand-primary-50" : "border-brand-earth-300"
-            }`}>
-              <input type="radio" name="paymentMethodRadio" value="COD"
-                checked={paymentMethod === "COD"}
-                onChange={() => setPaymentMethod("COD")}
-                className="accent-brand-primary-700" />
-              <div>
-                <span className="font-medium text-brand-earth-900">Cash on Delivery</span>
-                <p className="text-sm text-brand-earth-700/70">Pay when your order arrives</p>
+        {isAddressStepComplete ? (
+          <>
+            <fieldset className="card-warm" disabled={isSubmitting}>
+              <legend className="font-display text-xl font-bold text-brand-earth-900 mb-4">
+                Step 3: Payment method
+              </legend>
+              <div className="space-y-3">
+                <label className={`flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition ${
+                  paymentMethod === "COD" ? "border-brand-primary-600 bg-brand-primary-50" : "border-brand-earth-300"
+                }`}>
+                  <input type="radio" name="paymentMethodRadio" value="COD"
+                    checked={paymentMethod === "COD"}
+                    onChange={() => setPaymentMethod("COD")}
+                    className="accent-brand-primary-700" />
+                  <div>
+                    <span className="font-medium text-brand-earth-900">Cash on Delivery</span>
+                    <p className="text-sm text-brand-earth-700/70">Pay when your order arrives</p>
+                  </div>
+                </label>
+                {config.features.enablePayments && (
+                  <label className={`flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition ${
+                    paymentMethod === "UPI" ? "border-brand-primary-600 bg-brand-primary-50" : "border-brand-earth-300"
+                  }`}>
+                    <input type="radio" name="paymentMethodRadio" value="UPI"
+                      checked={paymentMethod === "UPI"}
+                      onChange={() => setPaymentMethod("UPI")}
+                      className="accent-brand-primary-700" />
+                    <div>
+                      <span className="font-medium text-brand-earth-900">UPI payment</span>
+                      <p className="text-sm text-brand-earth-700/70">Prefer UPI in Razorpay checkout. If UPI is unavailable on this device, Razorpay may show other online methods.</p>
+                    </div>
+                  </label>
+                )}
+                {config.features.enablePayments && (
+                  <label className={`flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition ${
+                    paymentMethod === "RAZORPAY" ? "border-brand-primary-600 bg-brand-primary-50" : "border-brand-earth-300"
+                  }`}>
+                    <input type="radio" name="paymentMethodRadio" value="RAZORPAY"
+                      checked={paymentMethod === "RAZORPAY"}
+                      onChange={() => setPaymentMethod("RAZORPAY")}
+                      className="accent-brand-primary-700" />
+                    <div>
+                      <span className="font-medium text-brand-earth-900">Cards / net banking / other online modes</span>
+                      <p className="text-sm text-brand-earth-700/70">Use Razorpay for cards, net banking, and other online payment methods</p>
+                    </div>
+                  </label>
+                )}
               </div>
-            </label>
-            {config.features.enablePayments && (
-              <label className={`flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition ${
-                paymentMethod === "UPI" ? "border-brand-primary-600 bg-brand-primary-50" : "border-brand-earth-300"
-              }`}>
-                <input type="radio" name="paymentMethodRadio" value="UPI"
-                  checked={paymentMethod === "UPI"}
-                  onChange={() => setPaymentMethod("UPI")}
-                  className="accent-brand-primary-700" />
-                <div>
-                  <span className="font-medium text-brand-earth-900">UPI payment</span>
-                  <p className="text-sm text-brand-earth-700/70">Pay online using any UPI app through Razorpay</p>
-                </div>
-              </label>
-            )}
-            {config.features.enablePayments && (
-              <label className={`flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition ${
-                paymentMethod === "RAZORPAY" ? "border-brand-primary-600 bg-brand-primary-50" : "border-brand-earth-300"
-              }`}>
-                <input type="radio" name="paymentMethodRadio" value="RAZORPAY"
-                  checked={paymentMethod === "RAZORPAY"}
-                  onChange={() => setPaymentMethod("RAZORPAY")}
-                  className="accent-brand-primary-700" />
-                <div>
-                  <span className="font-medium text-brand-earth-900">Cards / net banking / other online modes</span>
-                  <p className="text-sm text-brand-earth-700/70">Use Razorpay for cards, net banking, and other online payment methods</p>
-                </div>
-              </label>
-            )}
-          </div>
-        </fieldset>
+            </fieldset>
 
-        {/* Notes */}
-        <fieldset className="card-warm" disabled={isSubmitting}>
-          <legend className="font-display text-xl font-bold text-brand-earth-900 mb-4">
-            Order notes (optional)
-          </legend>
-          <textarea
-            id="notes"
-            name="notes"
-            rows={3}
-            maxLength={1000}
-            value={fields.notes}
-            onChange={(e) => updateField("notes", e.target.value)}
-            placeholder="Any special instructions…"
-            className="input-field"
-          />
-        </fieldset>
+            <fieldset className="card-warm" disabled={isSubmitting}>
+              <legend className="font-display text-xl font-bold text-brand-earth-900 mb-4">
+                Step 4: Order notes (optional)
+              </legend>
+              <textarea
+                id="notes"
+                name="notes"
+                rows={3}
+                maxLength={1000}
+                value={fields.notes}
+                onChange={(e) => updateField("notes", e.target.value)}
+                placeholder="Any special instructions…"
+                className="input-field"
+              />
+            </fieldset>
+          </>
+        ) : (
+          <div className="card-warm border border-dashed border-brand-cream-300 bg-brand-cream-50/70">
+            <h2 className="font-display text-xl font-bold text-brand-earth-900">Step 3: Payment method</h2>
+            <p className="mt-2 text-sm text-brand-earth-700/75">
+              This step will appear once a shipping address is selected or completed.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Order summary sidebar */}
@@ -936,16 +1010,24 @@ export function CheckoutForm() {
 
         {!isPhoneVerified && (
           <p className="text-sm text-brand-earth-700/75">
-            Verify your mobile number to enable saved addresses and place the order.
+            Complete Step 1 to unlock shipping addresses.
           </p>
         )}
 
-        <button type="submit" disabled={isSubmitting}
+        {isPhoneVerified && !isAddressStepComplete && (
+          <p className="text-sm text-brand-earth-700/75">
+            Complete Step 2 to choose your payment method.
+          </p>
+        )}
+
+        <button type="submit" disabled={isSubmitting || !isPhoneVerified || !isAddressStepComplete}
           className="btn-primary w-full justify-center disabled:opacity-60">
           {isSubmitting
             ? "Placing order…"
             : !isPhoneVerified
               ? "Verify phone to continue"
+              : !isAddressStepComplete
+                ? "Add address to continue"
               : paymentMethod === "COD"
                 ? "Place order (COD)"
                 : paymentMethod === "UPI"

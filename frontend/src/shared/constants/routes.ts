@@ -3,6 +3,7 @@ export const ROUTES = {
   adminHome: "/admin",
   adminLogin: "/admin/login",
   adminDashboard: "/admin/dashboard",
+  adminContacts: "/admin/contacts",
   adminOrders: "/admin/orders",
   products: "/products",
   bulkOrders: "/bulk-orders",

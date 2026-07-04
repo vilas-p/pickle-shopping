@@ -18,3 +18,15 @@ logging:
   level:
     root: WARN
     com.appaamma: INFO
+
+app:
+  otp:
+    provider: ${APP_OTP_PROVIDER:HTTP}
+    expose-debug-code: false
+  notification:
+    sms:
+      provider: ${APP_NOTIFICATION_SMS_PROVIDER:MSG91}
+    whatsapp:
+      provider: ${APP_NOTIFICATION_WHATSAPP_PROVIDER:WHATSAPP_BUSINESS_API}
+    email:
+      provider: ${APP_NOTIFICATION_EMAIL_PROVIDER:RESEND}

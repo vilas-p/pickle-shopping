@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
         JwtProperties.class,
         CustomerJwtProperties.class,
         CorsProperties.class,
+        NotificationProperties.class,
         OtpProperties.class,
         RazorpayProperties.class,
         StoreLocationProperties.class

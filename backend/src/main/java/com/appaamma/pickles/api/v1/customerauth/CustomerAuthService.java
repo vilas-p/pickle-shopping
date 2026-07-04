@@ -5,6 +5,7 @@ import com.appaamma.pickles.api.v1.customerauth.dto.RequestOtpRequest;
 import com.appaamma.pickles.api.v1.customerauth.dto.RequestOtpResponse;
 import com.appaamma.pickles.api.v1.customerauth.dto.UpdateCustomerProfileRequest;
 import com.appaamma.pickles.api.v1.customerauth.dto.VerifyOtpRequest;
+import com.appaamma.pickles.api.v1.notification.event.UserRegisteredEvent;
 import com.appaamma.pickles.domain.customer.Customer;
 import com.appaamma.pickles.domain.customer.CustomerRepository;
 import com.appaamma.pickles.domain.otp.OtpIdentifierKind;
@@ -15,6 +16,7 @@ import com.appaamma.pickles.security.CustomerJwtTokenProvider;
 import com.appaamma.pickles.security.CustomerPrincipal;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,7 @@ public class CustomerAuthService {
     private final OtpService otpService;
     private final CustomerRepository customerRepository;
     private final CustomerJwtTokenProvider tokenProvider;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
     public RequestOtpResponse requestLoginOtp(RequestOtpRequest req, HttpServletRequest http) {
@@ -35,7 +38,12 @@ public class CustomerAuthService {
                 http.getRemoteAddr(),
                 truncate(http.getHeader("User-Agent"), 500)
         );
-        return new RequestOtpResponse(result.channel(), result.expiresAt());
+        return new RequestOtpResponse(result.channel(), result.expiresAt(), result.debugCode());
+    }
+
+    @Transactional
+    public RequestOtpResponse resendLoginOtp(RequestOtpRequest req, HttpServletRequest http) {
+        return requestLoginOtp(req, http);
     }
 
     /**
@@ -103,24 +111,28 @@ public class CustomerAuthService {
     private Customer findOrCreateByPhone(String phone, String fullName) {
         return customerRepository.findByPhone(phone).orElseGet(() -> {
             requireName(fullName);
-            return customerRepository.save(Customer.builder()
+            Customer saved = customerRepository.save(Customer.builder()
                     .fullName(fullName.trim())
                     .phone(phone)
                     // Email is required on the entity; until they add one we synthesise a
                     // unique placeholder. Their profile screen prompts for the real address.
                     .email("pending+" + phone + "@appaamma.local")
                     .build());
+            applicationEventPublisher.publishEvent(new UserRegisteredEvent(saved.getFullName(), saved.getEmail(), saved.getPhone()));
+            return saved;
         });
     }
 
     private Customer findOrCreateByEmail(String email, String fullName) {
         return customerRepository.findByEmailIgnoreCase(email).orElseGet(() -> {
             requireName(fullName);
-            return customerRepository.save(Customer.builder()
+            Customer saved = customerRepository.save(Customer.builder()
                     .fullName(fullName.trim())
                     .email(email)
                     .phone("0000000000")
                     .build());
+            applicationEventPublisher.publishEvent(new UserRegisteredEvent(saved.getFullName(), saved.getEmail(), saved.getPhone()));
+            return saved;
         });
     }
 

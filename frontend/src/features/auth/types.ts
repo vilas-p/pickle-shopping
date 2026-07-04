@@ -21,6 +21,7 @@ export interface RequestOtpInput {
 export interface RequestOtpResult {
   channel: string;
   expiresAt: string;
+  debugCode?: string | null;
 }
 
 export interface VerifyOtpInput {

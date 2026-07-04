@@ -7,6 +7,8 @@ package com.appaamma.pickles.domain.otp;
  */
 public interface OtpSender {
 
+    OtpProviderType type();
+
     /**
      * @return the channel/provider name actually used (for logging).
      */

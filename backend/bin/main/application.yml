@@ -64,8 +64,8 @@ app:
     rate-limit-max-per-window: ${APP_OTP_RATE_MAX:5}
     rate-limit-window: ${APP_OTP_RATE_WINDOW:PT15M}
   razorpay:
-    key-id: ${RAZORPAY_KEY_ID:rzp_test_placeholder}
-    key-secret: ${RAZORPAY_KEY_SECRET:placeholder_secret}
+    key-id: ${RAZORPAY_KEY_ID:rzp_test_T7nwEJPZkW0BbI}
+    key-secret: ${RAZORPAY_KEY_SECRET:zM6mY9bkli4Gld7SErnUIreb}
   cors:
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:3000}
 

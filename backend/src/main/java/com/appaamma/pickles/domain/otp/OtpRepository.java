@@ -21,7 +21,7 @@ public interface OtpRepository extends JpaRepository<OtpToken, Long> {
            and o.consumedAt is null
            and o.expiresAt > :now
            and o.attempts < o.maxAttempts
-         order by o.id desc
+         order by o.id desc limit 1
         """)
     Optional<OtpToken> findLatestUsable(
             @Param("identifier") String identifier,

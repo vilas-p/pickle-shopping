@@ -17,6 +17,14 @@ export const authApi = {
     });
   },
 
+  resendOtp(input: RequestOtpInput): Promise<RequestOtpResult> {
+    return http<RequestOtpResult>("/customer-auth/otp/resend", {
+      method: "POST",
+      body: JSON.stringify(input),
+      cache: "no-store",
+    });
+  },
+
   verifyOtp(input: VerifyOtpInput): Promise<AuthSession> {
     return http<AuthSession>("/customer-auth/otp/verify", {
       method: "POST",
