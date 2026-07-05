@@ -6,13 +6,13 @@ import { ordersApi } from "@/features/order/api";
 import { OrderStatusBadge } from "@/features/order/components/OrderStatusBadge";
 import { formatPrice } from "@/shared/lib/format";
 import { ROUTES } from "@/shared/constants/routes";
-import type { Order } from "@/features/order/types";
+import type { PublicOrder } from "@/features/order/types";
 
 const STATUS_STEPS = ["PENDING", "CONFIRMED", "PACKED", "SHIPPED", "DELIVERED"] as const;
 
 export function TrackOrderForm() {
   const [orderNumber, setOrderNumber] = useState("");
-  const [order, setOrder] = useState<Order | null>(null);
+  const [order, setOrder] = useState<PublicOrder | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 

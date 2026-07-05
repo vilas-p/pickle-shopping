@@ -9,11 +9,3 @@ export function primaryImage(product: Product): string {
   const img = product.images?.find((i) => i.primary) ?? product.images?.[0];
   return img?.url ?? "/images/products/placeholder.svg";
 }
-
-export function hasDiscount(product: Product): boolean {
-  return (
-    product.compareAtPrice !== undefined &&
-    product.compareAtPrice !== null &&
-    product.compareAtPrice > product.price
-  );
-}

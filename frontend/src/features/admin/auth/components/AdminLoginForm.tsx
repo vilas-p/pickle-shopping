@@ -6,6 +6,7 @@ import { adminAuthApi } from "../api";
 import { useAdminAuthStore } from "../store";
 import { ROUTES } from "@/shared/constants/routes";
 import { useApiSubmit } from "@/shared/hooks/useApiSubmit";
+import { sanitizeRedirectTarget } from "@/shared/lib/redirects";
 
 export function AdminLoginForm() {
   const router = useRouter();
@@ -18,11 +19,12 @@ export function AdminLoginForm() {
   const [password, setPassword] = useState("");
 
   const submit = useApiSubmit(adminAuthApi.login);
+  const redirectTarget = sanitizeRedirectTarget(search.get("redirect"), ROUTES.adminDashboard);
 
   useEffect(() => {
     if (!hasHydrated || !isAuthenticated) return;
-    router.replace(search.get("redirect") ?? ROUTES.adminDashboard);
-  }, [hasHydrated, isAuthenticated, router, search]);
+    router.replace(redirectTarget);
+  }, [hasHydrated, isAuthenticated, redirectTarget, router]);
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -34,7 +36,7 @@ export function AdminLoginForm() {
     if (!session) return;
 
     setSession(session);
-    router.push(search.get("redirect") ?? ROUTES.adminDashboard);
+    router.push(redirectTarget);
   };
 
   return (

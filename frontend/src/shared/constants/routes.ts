@@ -1,6 +1,5 @@
 export const ROUTES = {
   home: "/",
-  adminHome: "/admin",
   adminLogin: "/admin/login",
   adminDashboard: "/admin/dashboard",
   adminContacts: "/admin/contacts",
@@ -10,8 +9,6 @@ export const ROUTES = {
   productDetail: (slug: string) => `/products/${slug}`,
   cart: "/cart",
   checkout: "/checkout",
-  checkoutAddress: "/checkout/address",
-  checkoutPayment: "/checkout/payment",
   checkoutConfirmation: (orderNumber: string) => `/checkout/confirmation/${orderNumber}`,
   authLogin: "/auth/login",
   account: "/account",
@@ -22,6 +19,4 @@ export const ROUTES = {
   faq: "/faq",
   reviews: "/reviews",
   trackOrder: "/track-order",
-  // Legacy single-page order route, preserved until the new cart/checkout flow ships.
-  legacyOrder: "/order",
 } as const;

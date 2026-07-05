@@ -7,7 +7,7 @@ import { ROUTES } from "@/shared/constants/routes";
 
 /**
  * Client-side auth guard. If the customer is not authenticated, redirects to login.
- * Shows a loading skeleton while hydrating from localStorage.
+ * Shows a loading skeleton while hydrating the persisted browser session.
  */
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();

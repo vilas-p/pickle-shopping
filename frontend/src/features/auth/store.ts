@@ -42,7 +42,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: AUTH_STORAGE_KEY,
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => sessionStorage),
       version: 1,
       partialize: (state) => ({
         token: state.token,
@@ -56,5 +56,4 @@ export const useAuthStore = create<AuthState>()(
   )
 );
 
-export const selectToken = (s: AuthState) => s.token;
 export const selectCustomer = (s: AuthState) => s.customer;

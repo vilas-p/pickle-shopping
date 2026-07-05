@@ -6,6 +6,7 @@ import { authApi } from "../api";
 import { useAuthStore } from "../store";
 import type { OtpIdentifierKind } from "../types";
 import { useApiSubmit } from "@/shared/hooks/useApiSubmit";
+import { sanitizeRedirectTarget } from "@/shared/lib/redirects";
 
 type Step = "request" | "verify";
 
@@ -39,7 +40,7 @@ export function LoginForm() {
     });
     if (res) {
       setSession(res);
-      const redirect = search.get("redirect") ?? "/account";
+      const redirect = sanitizeRedirectTarget(search.get("redirect"), "/account");
       router.push(redirect);
     }
   };

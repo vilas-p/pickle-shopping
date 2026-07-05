@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { serializeJsonForScript } from "@/shared/lib/json";
 import { SectionHeading } from "@/shared/ui/SectionHeading";
 
 export const metadata: Metadata = {
@@ -53,7 +54,7 @@ export default function FAQPage() {
     <div className="container-page py-12">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonForScript(jsonLd) }}
       />
       <SectionHeading
         eyebrow="Frequently Asked Questions"

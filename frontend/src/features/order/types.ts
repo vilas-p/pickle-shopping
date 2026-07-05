@@ -53,6 +53,18 @@ export interface Order {
   items: OrderItem[];
 }
 
+export interface PublicOrder {
+  orderNumber: string;
+  status: OrderStatus;
+  channel: OrderChannel;
+  paymentMethod?: PaymentMethod;
+  subtotal: number;
+  shippingFee: number;
+  total: number;
+  createdAt: string;
+  items: OrderItem[];
+}
+
 export interface CreateOrderPayload {
   customer: { fullName: string; email: string; phone: string };
   shippingAddress: ShippingAddress;

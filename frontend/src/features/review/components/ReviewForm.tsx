@@ -7,7 +7,7 @@ import { useApiSubmit } from "@/shared/hooks/useApiSubmit";
 export function ReviewForm() {
   const [rating, setRating] = useState(5);
   const { status, message, submit } = useApiSubmit(reviewsApi.create, {
-    successMessage: "Thank you! Your review will be visible after moderation.",
+    successMessage: "Thank you! Your review is now live.",
   });
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {

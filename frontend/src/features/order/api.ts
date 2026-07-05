@@ -1,6 +1,6 @@
 import { http } from "@/shared/lib/http";
 import type { PageResponse } from "@/shared/types/api";
-import type { CreateOrderPayload, Order } from "./types";
+import type { CreateOrderPayload, Order, PublicOrder } from "./types";
 
 export const ordersApi = {
   create: (payload: CreateOrderPayload) =>
@@ -11,7 +11,7 @@ export const ordersApi = {
       cache: "no-store",
     }),
   byNumber: (orderNumber: string) =>
-    http<Order>(`/orders/number/${encodeURIComponent(orderNumber)}`, {
+    http<PublicOrder>(`/orders/number/${encodeURIComponent(orderNumber)}`, {
       cache: "no-store",
     }),
   myOrders: (page = 0, size = 10) =>

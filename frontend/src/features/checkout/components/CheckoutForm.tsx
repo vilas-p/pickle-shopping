@@ -323,24 +323,38 @@ export function CheckoutForm() {
       notes: fields.notes.trim() || undefined,
     };
 
-    const order = await submit(payload);
-    if (!order) return; // error handled by useApiSubmit
-
-    if (isAuthenticated && authCustomer && authCustomer.id === order.customer.id) {
-      setCustomer(order.customer);
-    }
-
     if (paymentMethod === "RAZORPAY" || paymentMethod === "UPI") {
+      let rpData:
+        | { razorpayOrderId: string; amount: number; currency: string; razorpayKeyId: string; customerName: string; customerEmail: string; customerPhone: string; orderNumber: string }
+        | undefined;
       try {
-        const rpData = await paymentsApi.createOrder(order.id);
-        await openRazorpayCheckout(rpData, order.orderNumber, paymentMethod);
+        rpData = await paymentsApi.createOrder(payload);
+        await openRazorpayCheckout(rpData, rpData.orderNumber, paymentMethod);
       } catch (err) {
+        if (rpData) {
+          await cancelUnpaidOnlineOrder(rpData.razorpayOrderId);
+        }
         setLocalError(err instanceof Error ? err.message : "Payment initiation failed");
       }
     } else {
+      const order = await submit(payload);
+      if (!order) return; // error handled by useApiSubmit
+
+      if (isAuthenticated && authCustomer && authCustomer.id === order.customer.id) {
+        setCustomer(order.customer);
+      }
+
       // COD: go straight to confirmation
       clearCart();
       router.push(ROUTES.checkoutConfirmation(order.orderNumber));
+    }
+  };
+
+  const cancelUnpaidOnlineOrder = async (razorpayOrderId: string) => {
+    try {
+      await paymentsApi.cancelOrder(razorpayOrderId);
+    } catch {
+      // Preserve the original checkout error; this cleanup call is best-effort.
     }
   };
 
@@ -350,6 +364,7 @@ export function CheckoutForm() {
     paymentMode: "UPI" | "RAZORPAY",
   ) => {
     return new Promise<void>((resolve, reject) => {
+      let paymentCompleted = false;
       const win = window as { Razorpay?: new (opts: Record<string, unknown>) => { open: () => void } };
       if (!win.Razorpay) {
         reject(new Error("Razorpay SDK not loaded. Please refresh and try again."));
@@ -409,6 +424,7 @@ export function CheckoutForm() {
               razorpayPaymentId: response.razorpay_payment_id,
               razorpaySignature: response.razorpay_signature,
             });
+            paymentCompleted = true;
             clearCart();
             router.push(ROUTES.checkoutConfirmation(orderNumber));
             resolve();
@@ -417,8 +433,11 @@ export function CheckoutForm() {
           }
         },
         modal: {
-          ondismiss: () => {
-            setLocalError("Payment cancelled. Your order has been saved — you can retry payment.");
+          ondismiss: async () => {
+            if (!paymentCompleted) {
+              await cancelUnpaidOnlineOrder(rpData.razorpayOrderId);
+              setLocalError("Payment cancelled. No order was created.");
+            }
             resolve();
           },
         },

@@ -6,6 +6,7 @@ import { productsApi } from "@/features/product/api";
 import { reviewsApi } from "@/features/review/api";
 import { config } from "@/shared/lib/config";
 import { formatPrice } from "@/shared/lib/format";
+import { serializeJsonForScript } from "@/shared/lib/json";
 import { ProductActions } from "@/features/product/components/ProductActions";
 import { ProductGallery } from "@/features/product/components/ProductGallery";
 import { ReviewCard } from "@/features/review/components/ReviewCard";
@@ -92,7 +93,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
       <div className="container-page">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonForScript(jsonLd) }}
       />
 
       <nav className="mb-6 text-sm text-brand-earth-700/70">

@@ -45,9 +45,11 @@ export async function http<T>(
 
   const authScope = auth === true ? "customer" : auth || null;
   const token = authScope ? tokenGetters[authScope]() : null;
+  const cache = init.cache ?? (authScope ? "no-store" : undefined);
 
   const res = await fetch(url, {
     ...init,
+    cache,
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",

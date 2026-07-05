@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { productsApi } from "@/features/product/api";
-import { categoriesApi } from "@/features/category/api";
 import { reviewsApi } from "@/features/review/api";
 import { config } from "@/shared/lib/config";
 import { ProductCard } from "@/features/product/components/ProductCard";
@@ -10,18 +9,15 @@ import { SectionHeading } from "@/shared/ui/SectionHeading";
 
 export default async function HomePage() {
   // Server-side parallel data fetch.
-  const [featuredResult, latestReviewsResult, categoriesResult] =
+  const [featuredResult, latestReviewsResult] =
     await Promise.allSettled([
       productsApi.featured(),
       reviewsApi.latest(),
-      categoriesApi.list(),
     ]);
 
   const featured = featuredResult.status === "fulfilled" ? featuredResult.value : [];
   const latestReviews =
     latestReviewsResult.status === "fulfilled" ? latestReviewsResult.value : [];
-  const categories =
-    categoriesResult.status === "fulfilled" ? categoriesResult.value : [];
 
   return (
     <>

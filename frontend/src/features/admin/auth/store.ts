@@ -40,7 +40,7 @@ export const useAdminAuthStore = create<AdminAuthState>()(
     }),
     {
       name: ADMIN_AUTH_STORAGE_KEY,
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => sessionStorage),
       version: 1,
       partialize: (state) => ({
         token: state.token,
