@@ -38,7 +38,7 @@ public class ReviewService {
                 .rating(request.rating())
                 .title(request.title())
                 .body(request.body())
-                .approved(false)
+            .approved(true)
                 .build();
         return reviewMapper.toResponse(reviewRepository.save(review));
     }

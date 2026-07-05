@@ -13,6 +13,8 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
 
     Optional<Inventory> findByProductId(Long productId);
 
+    Optional<Inventory> findByProductIdAndVariantIsNull(Long productId);
+
     Optional<Inventory> findByVariantId(Long variantId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)

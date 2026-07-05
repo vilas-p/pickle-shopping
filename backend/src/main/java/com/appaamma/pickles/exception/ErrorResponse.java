@@ -31,7 +31,6 @@ public class ErrorResponse {
     @AllArgsConstructor
     public static class FieldErrorDetail {
         private String field;
-        private Object rejectedValue;
         private String message;
     }
 }

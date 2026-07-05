@@ -8,7 +8,9 @@ import com.appaamma.pickles.api.v1.notification.event.OrderPlacedEvent;
 import com.appaamma.pickles.api.v1.notification.event.OrderShippedEvent;
 import com.appaamma.pickles.api.v1.order.dto.CreateOrderRequest;
 import com.appaamma.pickles.api.v1.order.dto.OrderResponse;
+import com.appaamma.pickles.api.v1.order.dto.PublicOrderResponse;
 import com.appaamma.pickles.common.PageResponse;
+import com.appaamma.pickles.domain.audit.AuditLogService;
 import com.appaamma.pickles.domain.customer.Address;
 import com.appaamma.pickles.domain.customer.AddressRepository;
 import com.appaamma.pickles.domain.customer.Customer;
@@ -30,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,9 +49,56 @@ public class OrderService {
     private final OrderMapper orderMapper;
     private final AddressRepository addressRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final AuditLogService auditLogService;
 
     @Transactional
     public OrderResponse createOrder(CreateOrderRequest req, CustomerPrincipal principal) {
+        PaymentMethod paymentMethod = resolvePaymentMethod(req.paymentMethod());
+        if (isOnlinePaymentMethod(paymentMethod)) {
+            throw new BadRequestException("Use the online payment API for UPI and card orders");
+        }
+
+        return orderMapper.toResponse(createOrderEntity(req, principal, paymentMethod, OrderStatus.PENDING, true, true,
+                orderNumberGenerator.next()));
+    }
+
+    @Transactional
+    public Order createPaidOnlineOrder(CreateOrderRequest req, CustomerPrincipal principal, String orderNumber) {
+        PaymentMethod paymentMethod = resolvePaymentMethod(req.paymentMethod());
+        if (!isOnlinePaymentMethod(paymentMethod)) {
+            throw new BadRequestException("Paid online order must use UPI or Razorpay");
+        }
+
+        return createOrderEntity(req, principal, paymentMethod, OrderStatus.CONFIRMED, false, true, orderNumber);
+    }
+
+    @Transactional(readOnly = true)
+    public void validateCheckoutForAuthenticatedCustomer(CreateOrderRequest req, CustomerPrincipal principal) {
+        if (principal == null) {
+            return;
+        }
+
+        Customer customer = customerRepository.findById(principal.customerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Customer", "id", principal.customerId()));
+        validateCustomerProfileChange(customer, req.customer(), principal);
+    }
+
+    @Transactional
+    public PricedOrder validateAndPriceItems(CreateOrderRequest req, boolean reserveInventory) {
+        if (req.items() == null || req.items().isEmpty()) {
+            throw new BadRequestException("Order must contain at least one item");
+        }
+
+        return pricingService.price(buildOrderItems(req.items(), reserveInventory));
+    }
+
+    private Order createOrderEntity(CreateOrderRequest req,
+                                    CustomerPrincipal principal,
+                                    PaymentMethod paymentMethod,
+                                    OrderStatus initialStatus,
+                                    boolean reserveInventory,
+                                    boolean publishOrderPlaced,
+                                    String orderNumber) {
         if (req.items() == null || req.items().isEmpty()) {
             throw new BadRequestException("Order must contain at least one item");
         }
@@ -59,25 +109,42 @@ public class OrderService {
 
 
         Order order = Order.builder()
-                .orderNumber(orderNumberGenerator.next())
+                .orderNumber(orderNumber)
                 .customer(customer)
                 .shippingAddress(address)
-                .status(OrderStatus.PENDING)
+                .status(initialStatus)
                 .channel(req.channel() != null ? req.channel() : OrderChannel.WEBSITE)
-                .paymentMethod(req.paymentMethod() != null ? req.paymentMethod() : PaymentMethod.COD)
+                .paymentMethod(paymentMethod)
                 .notes(req.notes())
                 .subtotal(BigDecimal.ZERO)
                 .total(BigDecimal.ZERO)
                 .build();
 
-        for (var line : req.items()) {
+        buildOrderItems(req.items(), reserveInventory).forEach(order::addItem);
+
+        PricedOrder priced = pricingService.price(order.getItems());
+        order.setSubtotal(priced.subtotal());
+        order.setShippingFee(priced.shippingFee());
+        order.setTotal(priced.total());
+
+        Order saved = orderRepository.save(order);
+        if (publishOrderPlaced) {
+            applicationEventPublisher.publishEvent(new OrderPlacedEvent(toNotificationContext(saved)));
+        }
+        return saved;
+    }
+
+    private java.util.List<OrderItem> buildOrderItems(java.util.List<CreateOrderRequest.OrderItemRequest> items,
+                                                      boolean reserveInventory) {
+        java.util.List<OrderItem> orderItems = new java.util.ArrayList<>();
+
+        for (var line : items) {
             Product product = productRepository.findById(line.productId())
                     .orElseThrow(() -> new ResourceNotFoundException("Product", "id", line.productId()));
             if (!product.isActive()) {
                 throw new BadRequestException("Product not available: " + product.getName());
             }
 
-            // Resolve variant (optional). If supplied, use variant's price/weight; otherwise fall back to product-level.
             ProductVariant variant = null;
             BigDecimal unitPrice;
             String weight;
@@ -91,17 +158,21 @@ public class OrderService {
                 if (!variant.isActive()) {
                     throw new BadRequestException("Variant not available: " + product.getName() + " " + variant.getWeight());
                 }
-                inventoryReservationService.reserveVariant(variant.getId(), product.getName() + " " + variant.getWeight(), line.quantity());
+                if (reserveInventory) {
+                    inventoryReservationService.reserveVariant(variant.getId(), product.getName() + " " + variant.getWeight(), line.quantity());
+                }
                 unitPrice = variant.getPrice();
                 weight = variant.getWeight();
             } else {
-                inventoryReservationService.reserve(product.getId(), product.getName(), line.quantity());
+                if (reserveInventory) {
+                    inventoryReservationService.reserve(product.getId(), product.getName(), line.quantity());
+                }
                 unitPrice = product.getPrice();
                 weight = product.getWeight();
             }
 
             BigDecimal lineTotal = unitPrice.multiply(BigDecimal.valueOf(line.quantity()));
-            order.addItem(OrderItem.builder()
+            orderItems.add(OrderItem.builder()
                     .product(product)
                     .variant(variant)
                     .productName(product.getName())
@@ -112,20 +183,20 @@ public class OrderService {
                     .build());
         }
 
-        PricedOrder priced = pricingService.price(order.getItems());
-        order.setSubtotal(priced.subtotal());
-        order.setShippingFee(priced.shippingFee());
-        order.setTotal(priced.total());
-
-        Order saved = orderRepository.save(order);
-        applicationEventPublisher.publishEvent(new OrderPlacedEvent(toNotificationContext(saved)));
-        return orderMapper.toResponse(saved);
+        return orderItems;
     }
 
     @Transactional(readOnly = true)
     public OrderResponse getByOrderNumber(String orderNumber) {
         return orderRepository.findByOrderNumber(orderNumber)
                 .map(orderMapper::toResponse)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", "orderNumber", orderNumber));
+    }
+
+    @Transactional(readOnly = true)
+    public PublicOrderResponse getPublicTrackingByOrderNumber(String orderNumber) {
+        return orderRepository.findByOrderNumber(orderNumber)
+                .map(orderMapper::toPublicResponse)
                 .orElseThrow(() -> new ResourceNotFoundException("Order", "orderNumber", orderNumber));
     }
 
@@ -173,6 +244,12 @@ public class OrderService {
         }
         order.setStatus(newStatus);
         Order saved = orderRepository.save(order);
+        auditLogService.log(
+            "ORDER_STATUS_UPDATED",
+            "Order",
+            String.valueOf(saved.getId()),
+            Map.of("orderNumber", saved.getOrderNumber(), "status", newStatus.name())
+        );
         publishOrderStatusEvent(saved);
         return orderMapper.toResponse(saved);
     }
@@ -199,6 +276,26 @@ public class OrderService {
     private void syncCustomerProfile(Customer customer,
                                      CreateOrderRequest.CustomerInfo info,
                                      CustomerPrincipal principal) {
+        validateCustomerProfileChange(customer, info, principal);
+
+        if (principal == null) {
+            return;
+        }
+
+        customer.setPhone(normalisePhone(principal.phone()));
+        customer.setFullName(info.fullName().trim());
+
+        String requestedEmail = info.email().trim().toLowerCase();
+        if (shouldReplacePlaceholderEmail(customer.getEmail(), requestedEmail)) {
+            customer.setEmail(requestedEmail);
+        }
+
+        customerRepository.save(customer);
+    }
+
+    private void validateCustomerProfileChange(Customer customer,
+                                               CreateOrderRequest.CustomerInfo info,
+                                               CustomerPrincipal principal) {
         if (principal == null) {
             return;
         }
@@ -209,9 +306,6 @@ public class OrderService {
             throw new BadRequestException("The order phone number must match the verified mobile number");
         }
 
-        customer.setPhone(verifiedPhone);
-        customer.setFullName(info.fullName().trim());
-
         String requestedEmail = info.email().trim().toLowerCase();
         if (shouldReplacePlaceholderEmail(customer.getEmail(), requestedEmail)) {
             customerRepository.findByEmailIgnoreCase(requestedEmail)
@@ -219,10 +313,15 @@ public class OrderService {
                     .ifPresent(existing -> {
                         throw new BadRequestException("That email is already linked to another customer");
                     });
-            customer.setEmail(requestedEmail);
         }
+    }
 
-        customerRepository.save(customer);
+    private PaymentMethod resolvePaymentMethod(PaymentMethod paymentMethod) {
+        return paymentMethod != null ? paymentMethod : PaymentMethod.COD;
+    }
+
+    private boolean isOnlinePaymentMethod(PaymentMethod paymentMethod) {
+        return paymentMethod == PaymentMethod.RAZORPAY || paymentMethod == PaymentMethod.UPI;
     }
 
     private boolean shouldReplacePlaceholderEmail(String currentEmail, String requestedEmail) {

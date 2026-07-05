@@ -25,12 +25,12 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
-    @Operation(summary = "Submit a customer review (requires admin approval)")
+    @Operation(summary = "Submit a customer review")
     @PostMapping
     public ResponseEntity<ApiResponse<ReviewResponse>> create(@Valid @RequestBody ReviewRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok(reviewService.create(request),
-                        "Thank you! Your review will be visible after moderation."));
+                        "Thank you! Your review is now live."));
     }
 
     @Operation(summary = "List approved reviews")

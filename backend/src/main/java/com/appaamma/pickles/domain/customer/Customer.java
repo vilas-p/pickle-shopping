@@ -8,7 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "customers", uniqueConstraints = @UniqueConstraint(columnNames = "email"))
+@Table(name = "customers", uniqueConstraints = {
+    @UniqueConstraint(name = "uk_customers_email", columnNames = "email"),
+    @UniqueConstraint(name = "uk_customers_phone", columnNames = "phone")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -26,7 +29,7 @@ public class Customer extends BaseEntity {
     @Column(nullable = false, length = 150, unique = true)
     private String email;
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 20, unique = true)
     private String phone;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)

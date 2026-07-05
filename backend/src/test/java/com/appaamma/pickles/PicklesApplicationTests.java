@@ -17,8 +17,11 @@ import org.springframework.test.context.ActiveProfiles;
         "app.otp.max-attempts=5",
         "app.otp.rate-limit-max-per-window=10",
         "app.otp.rate-limit-window=PT1H",
+        "app.jwt.secret=test-admin-jwt-secret-32-chars-min",
+        "app.customer-jwt.secret=test-customer-jwt-secret-32-chars",
         "app.razorpay.key-id=rzp_test_placeholder",
-        "app.razorpay.key-secret=placeholder_secret"
+        "app.razorpay.key-secret=placeholder_secret",
+        "app.razorpay.webhook-secret=placeholder_webhook_secret"
 })
 @ActiveProfiles("test")
 class PicklesApplicationTests {

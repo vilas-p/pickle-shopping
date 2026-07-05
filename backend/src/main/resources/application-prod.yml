@@ -21,7 +21,6 @@ logging:
 
 app:
   otp:
-    provider: ${APP_OTP_PROVIDER:HTTP}
     expose-debug-code: false
   notification:
     sms:

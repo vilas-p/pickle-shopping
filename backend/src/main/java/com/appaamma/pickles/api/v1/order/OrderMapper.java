@@ -1,6 +1,7 @@
 package com.appaamma.pickles.api.v1.order;
 
 import com.appaamma.pickles.api.v1.order.dto.OrderResponse;
+import com.appaamma.pickles.api.v1.order.dto.PublicOrderResponse;
 import com.appaamma.pickles.domain.customer.Address;
 import com.appaamma.pickles.domain.customer.Customer;
 import com.appaamma.pickles.domain.order.Order;
@@ -16,6 +17,8 @@ public interface OrderMapper {
     @Mapping(target = "customer", source = "customer")
     @Mapping(target = "shippingAddress", source = "shippingAddress")
     OrderResponse toResponse(Order order);
+
+    PublicOrderResponse toPublicResponse(Order order);
 
     List<OrderResponse> toResponseList(List<Order> orders);
 

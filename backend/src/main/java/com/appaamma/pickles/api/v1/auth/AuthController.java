@@ -5,6 +5,7 @@ import com.appaamma.pickles.api.v1.auth.dto.LoginResponse;
 import com.appaamma.pickles.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +23,8 @@ public class AuthController {
 
     @Operation(summary = "Login with email + password; returns a JWT")
     @PostMapping("/login")
-    public ApiResponse<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
-        return ApiResponse.ok(authService.login(request), "Login successful");
+    public ApiResponse<LoginResponse> login(@Valid @RequestBody LoginRequest request,
+                                            HttpServletRequest httpRequest) {
+        return ApiResponse.ok(authService.login(request, httpRequest), "Login successful");
     }
 }

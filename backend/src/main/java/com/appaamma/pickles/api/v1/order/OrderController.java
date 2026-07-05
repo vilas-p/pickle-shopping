@@ -2,6 +2,7 @@ package com.appaamma.pickles.api.v1.order;
 
 import com.appaamma.pickles.api.v1.order.dto.CreateOrderRequest;
 import com.appaamma.pickles.api.v1.order.dto.OrderResponse;
+import com.appaamma.pickles.api.v1.order.dto.PublicOrderResponse;
 import com.appaamma.pickles.api.v1.order.dto.UpdateOrderStatusRequest;
 import com.appaamma.pickles.common.ApiResponse;
 import com.appaamma.pickles.common.PageResponse;
@@ -10,6 +11,7 @@ import com.appaamma.pickles.security.CustomerPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -17,13 +19,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Orders", description = "Order placement and management")
 @RestController
 @RequestMapping("/api/v1/orders")
 @RequiredArgsConstructor
+@Validated
 public class OrderController {
+
+    private static final String ORDER_NUMBER_PATTERN = "^AAP-\\d{8}-[A-F0-9]{8}$";
 
     private final OrderService orderService;
 
@@ -40,8 +46,11 @@ public class OrderController {
 
     @Operation(summary = "Get order by order number (public — for receipt page)")
     @GetMapping("/number/{orderNumber}")
-    public ApiResponse<OrderResponse> byNumber(@PathVariable String orderNumber) {
-        return ApiResponse.ok(orderService.getByOrderNumber(orderNumber));
+    public ApiResponse<PublicOrderResponse> byNumber(
+            @PathVariable
+            @Pattern(regexp = ORDER_NUMBER_PATTERN, message = "Invalid order number format")
+            String orderNumber) {
+        return ApiResponse.ok(orderService.getPublicTrackingByOrderNumber(orderNumber));
     }
 
     @Operation(summary = "[Admin] List orders, optionally filtered by status")
@@ -84,7 +93,9 @@ public class OrderController {
     @PreAuthorize("hasRole('CUSTOMER')")
     public ApiResponse<OrderResponse> myOrderByNumber(
             @AuthenticationPrincipal CustomerPrincipal principal,
-            @PathVariable String orderNumber
+            @PathVariable
+            @Pattern(regexp = ORDER_NUMBER_PATTERN, message = "Invalid order number format")
+            String orderNumber
     ) {
         return ApiResponse.ok(orderService.getByOrderNumberForCustomer(orderNumber, principal.customerId()));
     }

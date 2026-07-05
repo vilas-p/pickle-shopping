@@ -7,7 +7,9 @@ import lombok.*;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "payments")
+@Table(name = "payments", uniqueConstraints = {
+    @UniqueConstraint(name = "uk_payments_razorpay_payment_id", columnNames = "razorpay_payment_id")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -38,6 +40,9 @@ public class Payment extends BaseEntity {
     @Column(nullable = false, length = 10)
     @Builder.Default
     private String currency = "INR";
+
+    @Column(name = "gateway_status", length = 30)
+    private String gatewayStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)

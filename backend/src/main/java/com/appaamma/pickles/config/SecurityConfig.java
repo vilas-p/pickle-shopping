@@ -3,10 +3,12 @@ package com.appaamma.pickles.config;
 import com.appaamma.pickles.security.CustomerJwtAuthenticationFilter;
 import com.appaamma.pickles.security.JwtAuthEntryPoint;
 import com.appaamma.pickles.security.JwtAuthenticationFilter;
+import com.appaamma.pickles.security.PublicApiRateLimitFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -14,6 +16,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -29,6 +32,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomerJwtAuthenticationFilter customerJwtAuthenticationFilter;
+        private final PublicApiRateLimitFilter publicApiRateLimitFilter;
     private final JwtAuthEntryPoint jwtAuthEntryPoint;
     private final CorsProperties corsProperties;
 
@@ -47,6 +51,15 @@ public class SecurityConfig {
         http
                 .cors(c -> c.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
+                .headers(headers -> headers
+                        .contentTypeOptions(Customizer.withDefaults())
+                        .frameOptions(frame -> frame.deny())
+                        .referrerPolicy(referrer -> referrer.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER))
+                        .httpStrictTransportSecurity(hsts -> hsts
+                                .includeSubDomains(true)
+                                .preload(true)
+                                .maxAgeInSeconds(31_536_000))
+                        .cacheControl(Customizer.withDefaults()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(eh -> eh.authenticationEntryPoint(jwtAuthEntryPoint))
                 .authorizeHttpRequests(auth -> auth
@@ -68,8 +81,7 @@ public class SecurityConfig {
                                 "/api/v1/customer-auth/otp/request",
                                 "/api/v1/customer-auth/otp/resend",
                                 "/api/v1/customer-auth/otp/verify",
-                                "/api/v1/payments/create-order",
-                                "/api/v1/payments/verify"
+                                "/api/v1/payments/webhook"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/orders/number/**").permitAll()
                         // Docs & health
@@ -79,6 +91,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
+                .addFilterBefore(publicApiRateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(customerJwtAuthenticationFilter, JwtAuthenticationFilter.class);
 

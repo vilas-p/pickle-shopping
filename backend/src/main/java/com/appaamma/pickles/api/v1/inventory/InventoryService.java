@@ -36,7 +36,7 @@ public class InventoryService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
 
-        Inventory inventory = inventoryRepository.findByProductId(productId)
+        Inventory inventory = inventoryRepository.findByProductIdAndVariantIsNull(productId)
                 .orElseGet(() -> Inventory.builder().product(product).build());
 
         inventory.setQuantityAvailable(req.quantityAvailable());

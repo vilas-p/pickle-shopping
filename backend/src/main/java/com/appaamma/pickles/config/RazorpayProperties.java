@@ -8,5 +8,6 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties(prefix = "app.razorpay")
 public record RazorpayProperties(
         @NotBlank String keyId,
-        @NotBlank String keySecret
+        @NotBlank String keySecret,
+        @NotBlank String webhookSecret
 ) {}

@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS payment_attempts (
+    id                  BIGINT          NOT NULL AUTO_INCREMENT,
+    razorpay_order_id   VARCHAR(64)     NOT NULL,
+    order_number        VARCHAR(30)     NOT NULL,
+    customer_account_id BIGINT          NULL,
+    verified_phone      VARCHAR(20)     NULL,
+    verified_email      VARCHAR(150)    NULL,
+    customer_name       VARCHAR(100)    NOT NULL,
+    customer_email      VARCHAR(150)    NOT NULL,
+    customer_phone      VARCHAR(20)     NOT NULL,
+    payment_method      VARCHAR(30)     NOT NULL,
+    amount              DECIMAL(10,2)   NOT NULL,
+    currency            VARCHAR(10)     NOT NULL,
+    status              VARCHAR(30)     NOT NULL,
+    order_request_json  LONGTEXT        NOT NULL,
+    created_at          DATETIME(6)     NOT NULL,
+    updated_at          DATETIME(6)     NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_payment_attempts_razorpay_order UNIQUE (razorpay_order_id),
+    CONSTRAINT uk_payment_attempts_order_number UNIQUE (order_number),
+    CONSTRAINT fk_payment_attempts_customer FOREIGN KEY (customer_account_id) REFERENCES customers(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

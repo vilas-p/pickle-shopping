@@ -32,6 +32,24 @@ public class InventoryReservationService {
                 deduct(inv, productNameForError, quantity));
     }
 
+    /**
+     * Releases stock for a product without a variant.
+     */
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void release(Long productId, int quantity) {
+        inventoryRepository.lockByProductId(productId).ifPresent(inv ->
+                inv.setQuantityAvailable(inv.getQuantityAvailable() + quantity));
+    }
+
+    /**
+     * Releases stock for a specific product variant.
+     */
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void releaseVariant(Long variantId, int quantity) {
+        inventoryRepository.lockByVariantId(variantId).ifPresent(inv ->
+                inv.setQuantityAvailable(inv.getQuantityAvailable() + quantity));
+    }
+
     private void deduct(Inventory inv, String nameForError, int quantity) {
         if (inv.getQuantityAvailable() < quantity) {
             throw new BadRequestException("Insufficient stock for: " + nameForError);

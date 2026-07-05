@@ -8,10 +8,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import jakarta.validation.ConstraintViolationException;
 
 import java.util.List;
 
@@ -32,6 +33,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorResponse> handleBadRequest(BadRequestException ex, HttpServletRequest req) {
         return build(HttpStatus.BAD_REQUEST, ex.getMessage(), req);
+    }
+
+    @ExceptionHandler(TooManyRequestsException.class)
+    public ResponseEntity<ErrorResponse> handleTooManyRequests(TooManyRequestsException ex, HttpServletRequest req) {
+        return build(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage(), req);
     }
 
     @ExceptionHandler(OtpDeliveryException.class)
@@ -57,7 +63,25 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex, HttpServletRequest req) {
         return build(HttpStatus.BAD_REQUEST,
-                "Invalid value '%s' for parameter '%s'".formatted(ex.getValue(), ex.getName()), req);
+            "Invalid value for parameter '%s'".formatted(ex.getName()), req);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException ex, HttpServletRequest req) {
+        List<ErrorResponse.FieldErrorDetail> fieldErrors = ex.getConstraintViolations().stream()
+                .map(violation -> ErrorResponse.FieldErrorDetail.builder()
+                        .field(violation.getPropertyPath().toString())
+                        .message(violation.getMessage())
+                        .build())
+                .toList();
+        ErrorResponse body = ErrorResponse.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .message("Validation failed")
+                .path(req.getRequestURI())
+                .fieldErrors(fieldErrors)
+                .build();
+        return ResponseEntity.badRequest().body(body);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
@@ -95,7 +119,6 @@ public class GlobalExceptionHandler {
     private ErrorResponse.FieldErrorDetail toFieldErrorDetail(FieldError fe) {
         return ErrorResponse.FieldErrorDetail.builder()
                 .field(fe.getField())
-                .rejectedValue(fe.getRejectedValue())
                 .message(fe.getDefaultMessage())
                 .build();
     }

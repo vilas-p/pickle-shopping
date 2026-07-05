@@ -4,6 +4,8 @@ import com.appaamma.pickles.config.OtpProperties;
 import com.appaamma.pickles.api.v1.notification.event.LoginOtpRequestedEvent;
 import com.appaamma.pickles.domain.otp.*;
 import com.appaamma.pickles.exception.BadRequestException;
+import com.appaamma.pickles.exception.TooManyRequestsException;
+import com.appaamma.pickles.security.RequestRateLimiter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -24,10 +26,15 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class OtpService {
 
+    private static final int MAX_REQUESTS_PER_IP_WINDOW = 20;
+    private static final int MAX_VERIFY_ATTEMPTS_PER_IP_WINDOW = 25;
+    private static final int MAX_VERIFY_ATTEMPTS_PER_IDENTIFIER_WINDOW = 10;
+
     private final OtpRepository otpRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final PasswordEncoder passwordEncoder;
     private final OtpProperties props;
+    private final RequestRateLimiter requestRateLimiter;
     private final SecureRandom random = new SecureRandom();
 
     /**
@@ -42,10 +49,17 @@ public class OtpService {
                              String userAgent) {
         String normalised = normalise(kind, identifier);
 
+        requestRateLimiter.checkAndRecord(
+            rateKey("otp-request-ip", ipAddress),
+            MAX_REQUESTS_PER_IP_WINDOW,
+            props.rateLimitWindow(),
+            "Too many OTP requests from this device. Please try again later."
+        );
+
         Instant windowStart = Instant.now().minus(props.rateLimitWindow());
         long recent = otpRepository.countSince(normalised, windowStart);
         if (recent >= props.rateLimitMaxPerWindow()) {
-            throw new BadRequestException(
+            throw new TooManyRequestsException(
                     "Too many OTP requests. Please try again in a few minutes.");
         }
 
@@ -84,18 +98,30 @@ public class OtpService {
      * counter and throws.
      */
     @Transactional
-    public String verify(OtpIdentifierKind kind, String identifier, OtpPurpose purpose, String submittedCode) {
+        public String verify(OtpIdentifierKind kind, String identifier, OtpPurpose purpose, String submittedCode, String ipAddress) {
         String normalised = normalise(kind, identifier);
+        requestRateLimiter.checkAndRecord(
+            rateKey("otp-verify-ip", ipAddress),
+            MAX_VERIFY_ATTEMPTS_PER_IP_WINDOW,
+            props.rateLimitWindow(),
+            "Too many OTP verification attempts. Please request a new code later."
+        );
+        requestRateLimiter.checkAndRecord(
+            rateKey("otp-verify-id", normalised),
+            MAX_VERIFY_ATTEMPTS_PER_IDENTIFIER_WINDOW,
+            props.rateLimitWindow(),
+            "Too many OTP verification attempts. Please request a new code later."
+        );
+
         OtpToken token = otpRepository.findLatestUsable(normalised, purpose, Instant.now())
                 .orElseThrow(() -> new BadRequestException(
                         "No active code for this number. Please request a new one."));
 
         if (!passwordEncoder.matches(submittedCode, token.getCodeHash())) {
             token.setAttempts(token.getAttempts() + 1);
-            int remaining = token.getMaxAttempts() - token.getAttempts();
-            String message = remaining > 0
-                    ? "Incorrect code. " + remaining + " attempt" + (remaining == 1 ? "" : "s") + " left."
-                    : "Too many incorrect attempts. Please request a new code.";
+            String message = token.getAttempts() < token.getMaxAttempts()
+                ? "Invalid or expired code. Please try again."
+                : "Too many incorrect attempts. Please request a new code.";
             throw new BadRequestException(message);
         }
 
@@ -126,6 +152,11 @@ public class OtpService {
             sb.append(random.nextInt(10));
         }
         return sb.toString();
+    }
+
+    private String rateKey(String prefix, String value) {
+        String safeValue = value == null || value.isBlank() ? "unknown" : value;
+        return prefix + ':' + safeValue;
     }
 
     public record IssueResult(String channel, Instant expiresAt, String debugCode) {}

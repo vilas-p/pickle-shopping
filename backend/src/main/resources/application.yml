@@ -21,6 +21,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+        default_batch_fetch_size: 50
         format_sql: true
         jdbc.time_zone: Asia/Kolkata
 
@@ -47,21 +48,20 @@ server:
 
 app:
   jwt:
-    secret: ${APP_JWT_SECRET:change-me-in-production-this-must-be-at-least-32-chars-long}
-    expiration-ms: ${APP_JWT_EXPIRATION_MS:86400000}
+    secret: ${APP_JWT_SECRET:}
+    expiration-ms: ${APP_JWT_EXPIRATION_MS:28800000}
   customer-jwt:
     # Distinct from app.jwt — customer (storefront) JWTs use their own signing key so admin
     # and customer tokens cannot be substituted for each other.
-    secret: ${APP_CUSTOMER_JWT_SECRET:change-me-customer-secret-must-be-at-least-32-chars-long}
-    expiration-ms: ${APP_CUSTOMER_JWT_EXPIRATION_MS:604800000}   # 7 days
+    secret: ${APP_CUSTOMER_JWT_SECRET:}
+    expiration-ms: ${APP_CUSTOMER_JWT_EXPIRATION_MS:43200000}
   otp:
     code-length: ${APP_OTP_CODE_LENGTH:6}
     ttl: ${APP_OTP_TTL:PT10M}
     max-attempts: ${APP_OTP_MAX_ATTEMPTS:5}
     rate-limit-max-per-window: ${APP_OTP_RATE_MAX:5}
     rate-limit-window: ${APP_OTP_RATE_WINDOW:PT15M}
-    provider: ${APP_OTP_PROVIDER:DEV}
-    expose-debug-code: ${APP_OTP_EXPOSE_DEBUG_CODE:true}
+    expose-debug-code: ${APP_OTP_EXPOSE_DEBUG_CODE:false}
     http:
       url: ${APP_OTP_HTTP_URL:}
       auth-header-name: ${APP_OTP_HTTP_AUTH_HEADER_NAME:Authorization}
@@ -99,8 +99,9 @@ app:
       ses-region: ${APP_NOTIFICATION_EMAIL_SES_REGION:ap-south-1}
       ses-from-address: ${APP_NOTIFICATION_EMAIL_SES_FROM_ADDRESS:noreply@appaammas.in}
   razorpay:
-    key-id: ${RAZORPAY_KEY_ID:rzp_test_T7nwEJPZkW0BbI}
-    key-secret: ${RAZORPAY_KEY_SECRET:zM6mY9bkli4Gld7SErnUIreb}
+    key-id: ${RAZORPAY_KEY_ID:}
+    key-secret: ${RAZORPAY_KEY_SECRET:}
+    webhook-secret: ${RAZORPAY_WEBHOOK_SECRET:}
   store-location:
     label: ${APP_STORE_LOCATION_LABEL:Appa & Amma's Village Kitchen}
     line1: ${APP_STORE_LOCATION_LINE1:Village Kitchen Dispatch Centre}

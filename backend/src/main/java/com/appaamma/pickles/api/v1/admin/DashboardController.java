@@ -5,7 +5,6 @@ import com.appaamma.pickles.common.ApiResponse;
 import com.appaamma.pickles.domain.contact.ContactRepository;
 import com.appaamma.pickles.domain.customer.CustomerRepository;
 import com.appaamma.pickles.domain.inventory.InventoryRepository;
-import com.appaamma.pickles.domain.order.Order;
 import com.appaamma.pickles.domain.order.OrderRepository;
 import com.appaamma.pickles.domain.order.OrderStatus;
 import com.appaamma.pickles.domain.product.ProductRepository;
@@ -13,7 +12,6 @@ import com.appaamma.pickles.domain.review.ReviewRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,12 +49,7 @@ public class DashboardController {
             ordersByStatus.put(s.name(), orderRepository.countByStatus(s));
         }
 
-        BigDecimal revenueLast30 = orderRepository.findAll(PageRequest.of(0, 1000))
-                .stream()
-                .filter(o -> o.getCreatedAt() != null && o.getCreatedAt().isAfter(thirtyDaysAgo))
-                .filter(o -> o.getStatus() != OrderStatus.CANCELLED)
-                .map(Order::getTotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal revenueLast30 = orderRepository.sumTotalAfterExcludingStatus(thirtyDaysAgo, OrderStatus.CANCELLED);
 
         DashboardStatsResponse response = new DashboardStatsResponse(
                 productRepository.count(),
@@ -66,8 +59,8 @@ public class DashboardController {
                 orderRepository.countByCreatedAtAfter(thirtyDaysAgo),
                 revenueLast30,
                 inventoryRepository.findAllByQuantityAvailableLessThanEqual(10).size(),
-                contactRepository.findAllByHandled(false, PageRequest.of(0, 1)).getTotalElements(),
-                reviewRepository.findAllByApproved(false, PageRequest.of(0, 1)).getTotalElements(),
+            contactRepository.countByHandled(false),
+            reviewRepository.countByApproved(false),
                 ordersByStatus
         );
         return ApiResponse.ok(response);

@@ -11,4 +11,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findTop6ByApprovedTrueOrderByCreatedAtDesc();
     Page<Review> findAllByProductIdAndApprovedTrue(Long productId, Pageable pageable);
     Page<Review> findAllByApproved(boolean approved, Pageable pageable);
+
+    long countByApproved(boolean approved);
 }

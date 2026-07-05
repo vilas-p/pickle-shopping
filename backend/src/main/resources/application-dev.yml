@@ -5,6 +5,18 @@ spring:
       hibernate:
         format_sql: false
 
+app:
+  jwt:
+    secret: dev-only-admin-jwt-secret-32-chars-minimum
+  customer-jwt:
+    secret: dev-only-customer-jwt-secret-32-chars
+  otp:
+    expose-debug-code: true
+  razorpay:
+    key-id: dev-razorpay-key-id
+    key-secret: dev-razorpay-key-secret
+    webhook-secret: dev-razorpay-webhook-secret
+
 logging:
   level:
     org.hibernate.SQL: INFO

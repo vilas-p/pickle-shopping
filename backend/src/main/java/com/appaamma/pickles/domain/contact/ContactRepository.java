@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ContactRepository extends JpaRepository<Contact, Long> {
     Page<Contact> findAllByHandled(boolean handled, Pageable pageable);
+
+    long countByHandled(boolean handled);
 }
