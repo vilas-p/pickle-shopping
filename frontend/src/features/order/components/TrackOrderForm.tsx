@@ -47,7 +47,7 @@ export function TrackOrderForm() {
           className="input-field flex-1 min-w-[240px]"
         />
         <button type="submit" disabled={loading} className="btn-primary disabled:opacity-60">
-          {loading ? "Looking up…" : "Track order"}
+          {loading ? "Looking it up..." : "Track order"}
         </button>
       </form>
 
@@ -114,7 +114,7 @@ export function TrackOrderForm() {
 
           {/* Items + total */}
           <div className="mt-6 border-t border-brand-cream-200 pt-4">
-            <h3 className="text-sm font-semibold text-brand-earth-900">Items</h3>
+            <h3 className="text-sm font-semibold text-brand-earth-900">What is in the parcel</h3>
             <ul className="mt-2 space-y-1">
               {order.items.map((item) => (
                 <li key={item.id} className="flex justify-between text-sm text-brand-earth-800">

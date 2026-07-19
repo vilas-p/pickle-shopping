@@ -13,9 +13,9 @@ app:
   otp:
     expose-debug-code: true
   razorpay:
-    key-id: dev-razorpay-key-id
-    key-secret: dev-razorpay-key-secret
-    webhook-secret: dev-razorpay-webhook-secret
+    key-id: ${RAZORPAY_KEY_ID:rzp_test_TFN4xbZ5J1FCME}
+    key-secret: ${RAZORPAY_KEY_SECRET:EEYr3C60gtSQLwK6LYWbXCQr}
+    webhook-secret: ${RAZORPAY_WEBHOOK_SECRET:your_webhook_secret_here}
 
 logging:
   level:

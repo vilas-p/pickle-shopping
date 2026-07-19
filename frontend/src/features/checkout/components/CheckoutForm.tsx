@@ -737,7 +737,7 @@ export function CheckoutForm() {
                 </div>
               ) : (
                 <p className="rounded-2xl bg-brand-cream-50 px-4 py-3 text-sm text-brand-earth-700/80">
-                  This shipping address will be saved after you place the order.
+                  Place your first order and we&apos;ll remember this address for next time.
                 </p>
               )}
             </div>
@@ -756,7 +756,7 @@ export function CheckoutForm() {
                   onClick={chooseNewAddress}
                   className="mt-4 text-sm font-medium text-brand-primary-700 hover:underline"
                 >
-                  Use a different address
+                  Send this jar somewhere else
                 </button>
               </div>
             ) : (
@@ -911,7 +911,7 @@ export function CheckoutForm() {
                     className="accent-brand-primary-700" />
                   <div>
                     <span className="font-medium text-brand-earth-900">Cash on Delivery</span>
-                    <p className="text-sm text-brand-earth-700/70">Pay when your order arrives</p>
+                    <p className="text-sm text-brand-earth-700/70">Pay when the parcel reaches your door</p>
                   </div>
                 </label>
                 {config.features.enablePayments && (
@@ -956,7 +956,7 @@ export function CheckoutForm() {
                 maxLength={1000}
                 value={fields.notes}
                 onChange={(e) => updateField("notes", e.target.value)}
-                placeholder="Any special instructions…"
+                placeholder="Any special instructions for your parcel..."
                 className="input-field"
               />
             </fieldset>
@@ -965,7 +965,7 @@ export function CheckoutForm() {
           <div className="card-warm border border-dashed border-brand-cream-300 bg-brand-cream-50/70">
             <h2 className="font-display text-xl font-bold text-brand-earth-900">Step 3: Payment method</h2>
             <p className="mt-2 text-sm text-brand-earth-700/75">
-              This step will appear once a shipping address is selected or completed.
+              This step appears once we know where to send your jar.
             </p>
           </div>
         )}
@@ -974,7 +974,7 @@ export function CheckoutForm() {
       {/* Order summary sidebar */}
       <div className="lg:sticky lg:top-24 h-fit space-y-6">
         <div className="card-warm">
-          <h2 className="font-display text-xl font-bold text-brand-earth-900">Order summary</h2>
+          <h2 className="font-display text-xl font-bold text-brand-earth-900">Your parcel</h2>
           <ul className="mt-4 divide-y divide-brand-cream-200">
             {items.map((line) => (
               <li key={`${line.productId}:${line.variantId ?? ""}`}
@@ -1010,7 +1010,7 @@ export function CheckoutForm() {
             </div>
             {shippingFee > 0 && (
               <p className="text-xs text-brand-earth-700/70">
-                Free shipping on orders above {formatPrice(FREE_SHIPPING_THRESHOLD)}
+                Add a little more to the table for free shipping above {formatPrice(FREE_SHIPPING_THRESHOLD)}
               </p>
             )}
           </dl>
@@ -1029,29 +1029,29 @@ export function CheckoutForm() {
 
         {!isPhoneVerified && (
           <p className="text-sm text-brand-earth-700/75">
-            Complete Step 1 to unlock shipping addresses.
+            Verify your phone first so we know who this jar is going home to.
           </p>
         )}
 
         {isPhoneVerified && !isAddressStepComplete && (
           <p className="text-sm text-brand-earth-700/75">
-            Complete Step 2 to choose your payment method.
+            Add the address next so we can prepare the rest of your order.
           </p>
         )}
 
         <button type="submit" disabled={isSubmitting || !isPhoneVerified || !isAddressStepComplete}
           className="btn-primary w-full justify-center disabled:opacity-60">
           {isSubmitting
-            ? "Placing order…"
+            ? "Preparing your order..."
             : !isPhoneVerified
               ? "Verify phone to continue"
               : !isAddressStepComplete
                 ? "Add address to continue"
               : paymentMethod === "COD"
-                ? "Place order (COD)"
+                ? "Place this order"
                 : paymentMethod === "UPI"
-                  ? "Place order & pay with UPI"
-                  : "Place order & pay online"}
+                  ? "Place order and pay with UPI"
+                  : "Place order and pay online"}
         </button>
 
         <Link href={ROUTES.cart}

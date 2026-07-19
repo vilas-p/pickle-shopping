@@ -76,7 +76,9 @@ public class OtpService {
                 .build();
         otpRepository.save(token);
 
-            String channel = kind == OtpIdentifierKind.PHONE ? "sms" : "email";
+            String channel = kind == OtpIdentifierKind.PHONE
+                    ? props.phoneChannel().name().toLowerCase()
+                    : "email";
             applicationEventPublisher.publishEvent(new LoginOtpRequestedEvent(
                 kind,
                 normalised,

@@ -5,7 +5,7 @@ import { SectionHeading } from "@/shared/ui/SectionHeading";
 
 export const metadata: Metadata = {
   title: "Place an Order",
-  description: "Order homemade pickles online. We ship pan-India and offer WhatsApp ordering too.",
+  description: "Order a jar from our kitchen and have it sent to your table anywhere in India.",
   alternates: { canonical: "/order" },
 };
 
@@ -27,7 +27,7 @@ export default async function OrderPage({ searchParams }: PageProps) {
       <SectionHeading
         eyebrow="Place an Order"
         title="A jar from our kitchen, on its way to yours"
-        description="We ship across India. Orders above ₹999 ship free."
+        description="Choose what you&apos;d like, share where it should go, and we&apos;ll take care of the rest. Orders above ₹999 ship free."
       />
       <div className="mt-10">
         {products.length === 0 ? (

@@ -80,7 +80,7 @@ export function ProductActions({ product }: Props) {
       {/* Variant selector */}
       {hasVariants && (
         <div>
-          <span className="label-field">Weight</span>
+          <span className="label-field">Jar size</span>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {variants.map((v) => (
               <button
@@ -97,9 +97,13 @@ export function ProductActions({ product }: Props) {
       )}
 
       <div className="flex flex-wrap items-center gap-4">
-        <span className="label-field !mb-0">Quantity</span>
+        <span className="label-field !mb-0">How many jars</span>
         <QuantityStepper value={qty} onChange={setQty} ariaLabel="Quantity to add" />
       </div>
+
+      <p className="text-sm text-brand-earth-700/75">
+        A batch is tasted in our kitchen before it leaves for yours.
+      </p>
 
       <div className="flex flex-wrap gap-3">
         <button
@@ -107,14 +111,14 @@ export function ProductActions({ product }: Props) {
           onClick={() => handleAdd()}
           className={`cart-cta ${justAdded || inCart ? "cart-cta-active" : ""}`}
         >
-          {inCart ? "View cart" : justAdded ? "Added ✓" : "Add to cart"}
+          {inCart ? "View cart" : justAdded ? "Added ✓" : "Bring this jar home"}
         </button>
         <button
           type="button"
           onClick={() => handleAdd("cart")}
           className="btn-secondary"
         >
-          Buy now
+          Take it to cart
         </button>
         <a
           href={whatsappOrderLink({ productName: product.name, quantity: qty })}
@@ -122,7 +126,7 @@ export function ProductActions({ product }: Props) {
           rel="noreferrer"
           className="btn-whatsapp"
         >
-          Order on WhatsApp
+          Ask on WhatsApp
         </a>
       </div>
     </div>

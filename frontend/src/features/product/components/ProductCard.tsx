@@ -158,19 +158,14 @@ export function ProductCard({ product }: Props) {
   <div className="flex flex-1 flex-col p-5 text-center">
   <div>
     <div className="flex justify-center gap-2 mb-3">
-      <span className="badge">🌶 Flavorful</span>
-      <span className="badge">🏺 Traditional</span>
+      <span className="badge">Small batch</span>
+      <span className="badge">Family recipe</span>
     </div>
 
     <h3 className="text-3xl font-semibold">{product.name}</h3>
 
     <p className="mt-2 text-neutral-500">{product.shortDescription}</p>
 
-    <div className="mt-4 flex items-center justify-center gap-2">
-      ⭐⭐⭐⭐⭐
-      <span className="font-bold">4.8</span>
-      <span>(190)</span>
-    </div>
   </div>
 
   <div className="mt-auto">
@@ -196,7 +191,7 @@ export function ProductCard({ product }: Props) {
       onClick={handleAddToCart}
       className={`cart-cta mt-6 justify-between ${inCart ? "cart-cta-active" : ""}`}
     >
-      <span>{inCart ? "VIEW CART" : "ADD TO CART"}</span>
+      <span>{inCart ? "VIEW CART" : "BRING HOME"}</span>
       <span>{!inCart ? formatPrice(displayPrice) : null}</span>
     </button>
   </div>

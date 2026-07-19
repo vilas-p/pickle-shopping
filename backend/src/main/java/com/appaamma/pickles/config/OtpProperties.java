@@ -16,11 +16,17 @@ public record OtpProperties(
         @Min(1) int rateLimitMaxPerWindow,
         Duration rateLimitWindow,
         boolean exposeDebugCode,
+        PhoneChannel phoneChannel,
         HttpProvider http
 ) {
 
     public OtpProperties {
+        phoneChannel = phoneChannel == null ? PhoneChannel.WHATSAPP : phoneChannel;
         http = http == null ? new HttpProvider(null, "Authorization", null, "http", null) : http;
+    }
+
+    public enum PhoneChannel {
+        SMS, WHATSAPP
     }
 
     public record HttpProvider(

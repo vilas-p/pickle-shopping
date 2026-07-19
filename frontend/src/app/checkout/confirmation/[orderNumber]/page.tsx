@@ -38,10 +38,15 @@ export default async function ConfirmationPage({ params }: PageProps) {
   return (
     <section className="container-page py-12">
       <div className="mx-auto max-w-xl text-center">
-        <p className="font-script text-3xl text-brand-primary-700">Thank you!</p>
+        <p className="font-script text-3xl text-brand-primary-700">With warmth, from our kitchen</p>
         <h1 className="mt-2 font-display text-3xl font-bold text-brand-earth-900 sm:text-4xl">
-          Order placed successfully
+          Your order is in
         </h1>
+        <p className="mt-3 text-brand-earth-700/80">
+          Your jar is being prepared with the same care it would receive on our
+          own family&apos;s table. We&apos;ll let you know the moment it begins its
+          journey to yours.
+        </p>
 
         <div className="card-warm mt-8 text-left">
           <dl className="space-y-3 text-sm text-brand-earth-800">
@@ -77,23 +82,23 @@ export default async function ConfirmationPage({ params }: PageProps) {
         <div className="mt-6 space-y-3">
           {!isPaidOnline && (
             <p className="text-sm text-brand-earth-700/80">
-              You&apos;ll pay on delivery or via UPI — we&apos;ll WhatsApp you the details shortly.
+              You&apos;ll pay on delivery or via UPI. We&apos;ll WhatsApp you shortly with the next details.
             </p>
           )}
 
           <div className="flex flex-wrap justify-center gap-3">
             <Link href={ROUTES.products} className="btn-primary">
-              Continue shopping
+              See what&apos;s in the kitchen today
             </Link>
             <a
               href={`https://wa.me/${config.whatsappNumber}?text=${encodeURIComponent(
-                `Hi! I just placed order ${order.orderNumber}. Please confirm.`
+                `Hello, I just placed order ${order.orderNumber}. Please confirm when you have a moment.`
               )}`}
               target="_blank"
               rel="noreferrer"
               className="btn-whatsapp"
             >
-              WhatsApp us
+              Write to us on WhatsApp
             </a>
           </div>
         </div>

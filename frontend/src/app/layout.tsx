@@ -14,20 +14,22 @@ export const metadata: Metadata = {
     template: `%s | ${config.brand.name}`,
   },
   description:
-    "Traditional, hand-made Indian pickles from a family kitchen. Mango, lemon and bitter gourd pickles in cold-pressed oils. Shipping across India.",
+    "From a small kitchen in Our Village, Appa & Amma's Pickles brings back the taste of home with small-batch jars made slowly, by hand, and never in a hurry.",
   keywords: [
     "homemade pickles",
     "mango pickle",
     "lemon pickle",
     "bitter gourd pickle",
     "Indian pickles",
-    "village kitchen",
+    "Village Kitchen",
+    "small batch pickles",
+    "home style pickles",
     "Appa Amma pickles",
   ],
   openGraph: {
     title: `${config.brand.name} — ${config.brand.tagline}`,
     description:
-      "Hand-made pickles using cold-pressed oils and traditional Indian recipes. Shipped across India.",
+      "A jar from home, wherever home is. Small-batch pickles from Our Home, made with patience, memory, and family care.",
     url: config.siteUrl,
     siteName: config.brand.name,
     locale: "en_IN",

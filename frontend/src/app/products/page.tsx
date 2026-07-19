@@ -36,8 +36,8 @@ export default async function ProductsPage({ searchParams }: PageProps) {
         <div className="rounded-[2rem] bg-white/80 p-6 shadow-card ring-1 ring-brand-cream-200 backdrop-blur-sm sm:p-8">
           <SectionHeading
             eyebrow="Shop"
-            title="Our Pickles"
-            description="Three timeless recipes — made in small batches, packed in glass jars, shipped pan-India."
+            title="Choose the jar that feels closest to home"
+            description="Three familiar recipes, made in small batches and sent from our kitchen to tables across India."
           />
 
           <div className="mt-10">
@@ -48,8 +48,8 @@ export default async function ProductsPage({ searchParams }: PageProps) {
 
           {products.length === 0 ? (
             <div className="card-warm mt-10 text-center">
-              <p className="font-display text-xl text-brand-earth-900">No pickles match your search</p>
-              <p className="mt-1 text-sm text-brand-earth-700/70">Try clearing the filters above.</p>
+              <p className="font-display text-xl text-brand-earth-900">We couldn&apos;t find that jar just now</p>
+              <p className="mt-1 text-sm text-brand-earth-700/70">Try clearing the filters above and looking again.</p>
             </div>
           ) : (
             <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

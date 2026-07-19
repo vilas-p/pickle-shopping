@@ -62,6 +62,7 @@ app:
     rate-limit-max-per-window: ${APP_OTP_RATE_MAX:5}
     rate-limit-window: ${APP_OTP_RATE_WINDOW:PT15M}
     expose-debug-code: ${APP_OTP_EXPOSE_DEBUG_CODE:false}
+    phone-channel: ${APP_OTP_PHONE_CHANNEL:WHATSAPP}
     http:
       url: ${APP_OTP_HTTP_URL:}
       auth-header-name: ${APP_OTP_HTTP_AUTH_HEADER_NAME:Authorization}
@@ -76,7 +77,7 @@ app:
     sms:
       provider: ${APP_NOTIFICATION_SMS_PROVIDER:MOCK}
       msg91-base-url: ${APP_NOTIFICATION_SMS_MSG91_BASE_URL:https://api.msg91.com/api/v5/flow/}
-      msg91-auth-key: ${APP_NOTIFICATION_SMS_MSG91_AUTH_KEY:}
+      msg91-auth-key: ${APP_NOTIFICATION_SMS_MSG91_AUTH_KEY:548746AXvlxakOBz6a4e966fP1}
       msg91-sender-id: ${APP_NOTIFICATION_SMS_MSG91_SENDER_ID:APPAAM}
       twilio-base-url: ${APP_NOTIFICATION_SMS_TWILIO_BASE_URL:https://api.twilio.com/2010-04-01/Accounts/${APP_NOTIFICATION_SMS_TWILIO_ACCOUNT_SID}/Messages.json}
       twilio-account-sid: ${APP_NOTIFICATION_SMS_TWILIO_ACCOUNT_SID:}
@@ -88,6 +89,9 @@ app:
       access-token: ${APP_NOTIFICATION_WHATSAPP_ACCESS_TOKEN:}
       phone-number-id: ${APP_NOTIFICATION_WHATSAPP_PHONE_NUMBER_ID:}
       sender-name: ${APP_NOTIFICATION_WHATSAPP_SENDER_NAME:Appa & Amma's Pickles}
+      msg91-base-url: ${APP_NOTIFICATION_WHATSAPP_MSG91_BASE_URL:https://api.msg91.com/api/v5/whatsapp/whatsapp-outbound-message/bulk/}
+      msg91-auth-key: ${APP_NOTIFICATION_WHATSAPP_MSG91_AUTH_KEY:${APP_NOTIFICATION_SMS_MSG91_AUTH_KEY:}}
+      msg91-integrated-number: ${APP_NOTIFICATION_WHATSAPP_MSG91_INTEGRATED_NUMBER:919880193310}
     email:
       provider: ${APP_NOTIFICATION_EMAIL_PROVIDER:MOCK}
       resend-base-url: ${APP_NOTIFICATION_EMAIL_RESEND_BASE_URL:https://api.resend.com/emails}

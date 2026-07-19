@@ -117,9 +117,16 @@ export default async function ProductDetailPage({ params }: PageProps) {
               {product.shortDescription}
             </p>
 
+            <div className="mt-5 rounded-2xl bg-brand-cream-100/70 p-4 text-sm leading-relaxed text-brand-earth-800 ring-1 ring-brand-cream-200">
+              This jar was cut, salted, and prepared the slow way, then tasted
+              in our kitchen before it was allowed to leave. What you are
+              holding is more than spice and oil. It is the kind of taste most
+              of us only get when we go back home.
+            </div>
+
             <div className="mt-5 flex items-baseline gap-3">
               {hasVariants ? (
-                <span className="text-sm text-brand-earth-700/70">Select a size below</span>
+                <span className="text-sm text-brand-earth-700/70">Choose the jar size below</span>
               ) : (
                 <>
                   <span className="text-3xl font-bold text-brand-primary-700">
@@ -154,7 +161,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
             {product.description && (
               <div className="prose prose-sm mt-8 max-w-none text-brand-earth-800">
-                <h2 className="font-display text-2xl">About this pickle</h2>
+                <h2 className="font-display text-2xl">About this jar</h2>
                 <p>{product.description}</p>
               </div>
             )}
@@ -165,7 +172,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
       {reviews.length > 0 && (
         <section className="mt-16 rounded-[2rem] bg-white/80 p-6 shadow-card ring-1 ring-brand-cream-200 sm:p-8">
           <h2 className="font-display text-2xl font-bold text-brand-earth-900">
-            What customers are saying
+            What this jar brought back for others
           </h2>
           <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {reviews.map((r) => <ReviewCard key={r.id} review={r} />)}

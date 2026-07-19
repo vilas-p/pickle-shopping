@@ -3,7 +3,7 @@ import { TrackOrderForm } from "@/features/order/components/TrackOrderForm";
 
 export const metadata: Metadata = {
   title: "Track Your Order",
-  description: "Enter your order number to track your pickle delivery.",
+  description: "Enter your order number to see where your parcel is on its way from our kitchen to your table.",
 };
 
 export default function TrackOrderPage() {
@@ -14,7 +14,7 @@ export default function TrackOrderPage() {
           Track your order
         </h1>
         <p className="mt-2 text-brand-earth-700/80">
-          Enter your order number to see the latest status.
+          Enter your order number to see where your parcel is in its journey from our kitchen to your table.
         </p>
       </header>
       <div className="mx-auto max-w-xl">

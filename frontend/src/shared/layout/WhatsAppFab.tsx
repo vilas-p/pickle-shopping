@@ -4,7 +4,7 @@ import { whatsappGenericLink } from "@/shared/lib/whatsapp";
 export function WhatsAppFab() {
   return (
     <a
-      href={whatsappGenericLink(`Hi! I'm interested in ordering from ${config.brand.shortName} Pickles.`)}
+      href={whatsappGenericLink(`Hello, I'm looking for a jar that feels closest to home.`)}
       target="_blank"
       rel="noreferrer"
       aria-label="Chat with us on WhatsApp"

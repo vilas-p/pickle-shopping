@@ -19,8 +19,8 @@ export function Footer() {
             </div>
           </div>
           <p className="mt-4 text-sm text-brand-cream-200/80">
-            Hand-made pickles using cold-pressed oils, hand-picked produce, and
-            recipes passed down through generations.
+            From a small kitchen in Our Home, our jars are made the slow way,
+            tasted with care, and sent to tables that miss home.
           </p>
         </div>
 

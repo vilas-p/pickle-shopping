@@ -94,12 +94,12 @@ export function OrderForm({ products, preselectedProductId }: Props) {
   if (status === "success" && data) {
     return (
       <div className="card-warm text-center">
-        <p className="font-script text-2xl text-brand-primary-700">Thank you!</p>
+        <p className="font-script text-2xl text-brand-primary-700">A little piece of home is on its way</p>
         <h2 className="mt-2 font-display text-3xl text-brand-earth-900">
-          Order {data.orderNumber} placed! We&apos;ll WhatsApp you shortly to confirm.
+          Order {data.orderNumber} has been placed.
         </h2>
         <p className="mt-2 text-sm text-brand-earth-700/70">
-          Your order number is <strong>{data.orderNumber}</strong>. Please save it for reference.
+          We&apos;ll WhatsApp you shortly to confirm the details. Please save <strong>{data.orderNumber}</strong> for reference.
         </p>
         <Link href="/products" className="btn-secondary mt-6">Continue Shopping</Link>
       </div>
@@ -112,9 +112,9 @@ export function OrderForm({ products, preselectedProductId }: Props) {
     <form onSubmit={onSubmit} className="grid gap-8 lg:grid-cols-3">
       {/* Cart */}
       <section className="card-warm lg:col-span-2">
-        <h2 className="font-display text-2xl font-semibold text-brand-earth-900">Your Pickles</h2>
+        <h2 className="font-display text-2xl font-semibold text-brand-earth-900">Your jars</h2>
         <p className="mt-1 text-sm text-brand-earth-700/70">
-          Pick what you&apos;d like and the quantity.
+          Choose what you&apos;d like us to send from the kitchen.
         </p>
 
         {cart.length === 0 ? (
@@ -179,13 +179,13 @@ export function OrderForm({ products, preselectedProductId }: Props) {
 
         {cart.length < products.length && (
           <button type="button" onClick={addLine} className="btn-secondary mt-4">
-            + Add another pickle
+            + Add another jar
           </button>
         )}
 
         <hr className="my-6 border-brand-cream-200" />
 
-        <h2 className="font-display text-2xl font-semibold text-brand-earth-900">Delivery Details</h2>
+        <h2 className="font-display text-2xl font-semibold text-brand-earth-900">Where should this go?</h2>
 
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
@@ -247,13 +247,13 @@ export function OrderForm({ products, preselectedProductId }: Props) {
         </div>
         <div className="mt-4">
           <label htmlFor="notes" className="label-field">Order notes (optional)</label>
-          <textarea id="notes" name="notes" rows={3} className="input-field" />
+          <textarea id="notes" name="notes" rows={3} className="input-field" placeholder="Any special instructions for your parcel..." />
         </div>
       </section>
 
       {/* Summary */}
       <aside className="card-warm h-fit">
-        <h2 className="font-display text-2xl font-semibold text-brand-earth-900">Order Summary</h2>
+        <h2 className="font-display text-2xl font-semibold text-brand-earth-900">Your parcel</h2>
         <dl className="mt-4 space-y-2 text-sm">
           <div className="flex justify-between">
             <dt>Subtotal</dt>
@@ -274,7 +274,7 @@ export function OrderForm({ products, preselectedProductId }: Props) {
 
         {subtotal > 0 && subtotal < FREE_SHIPPING_THRESHOLD && (
           <p className="mt-3 rounded-lg bg-brand-accent-100 px-3 py-2 text-xs text-brand-accent-700">
-            Add {formatPrice(FREE_SHIPPING_THRESHOLD - subtotal)} more for free shipping!
+            Add {formatPrice(FREE_SHIPPING_THRESHOLD - subtotal)} more for free shipping.
           </p>
         )}
 
@@ -283,12 +283,12 @@ export function OrderForm({ products, preselectedProductId }: Props) {
           disabled={status === "submitting" || cart.length === 0}
           className="btn-primary mt-6 w-full"
         >
-          {status === "submitting" ? "Placing order…" : "Place Order"}
+          {status === "submitting" ? "Preparing your order..." : "Place this order"}
         </button>
 
         <p className="mt-3 text-center text-xs text-brand-earth-700/70">
-          You&apos;ll pay on delivery or via UPI / bank transfer — we&apos;ll WhatsApp you the
-          details after confirming.
+          You&apos;ll pay on delivery or via UPI / bank transfer. We&apos;ll WhatsApp you
+          after confirming the details.
         </p>
 
         <div className="my-4 flex items-center gap-3">

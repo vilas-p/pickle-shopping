@@ -33,31 +33,31 @@ export default async function HomePage() {
               has always made them.
             </h1>
             <p className="mt-5 max-w-xl text-lg text-brand-earth-700/85">
-              Hand-picked produce. Cold-pressed oils. Sun-cured the slow way.
-              Three timeless recipes, packed with love in our village kitchen and
-              delivered to your dining table — anywhere in India.
+              Handmade near Our Village, in small batches, the way it has always been
+              made. Never in a factory. Never in a hurry. Just the taste of a
+              kitchen that knows how to make a meal feel like home.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/products" className="btn-primary">
-                Shop Pickles
+                See What&apos;s In The Kitchen Today
               </Link>
               <Link href="/about" className="btn-secondary">
-                Our Story
+                Read The Story
               </Link>
             </div>
 
             <ul className="mt-8 grid grid-cols-3 gap-3 text-center text-sm">
               <li className="rounded-xl bg-white/70 px-3 py-2 ring-1 ring-brand-cream-200">
-                <p className="font-bold text-brand-primary-700">100%</p>
-                <p className="text-xs text-brand-earth-700/80">Hand-made</p>
+                <p className="font-bold text-brand-primary-700">Hand-cut</p>
+                <p className="text-xs text-brand-earth-700/80">By Amma</p>
               </li>
               <li className="rounded-xl bg-white/70 px-3 py-2 ring-1 ring-brand-cream-200">
-                <p className="font-bold text-brand-primary-700">Cold-Pressed</p>
-                <p className="text-xs text-brand-earth-700/80">Oils only</p>
+                <p className="font-bold text-brand-primary-700">Batch-tasted</p>
+                <p className="text-xs text-brand-earth-700/80">Before it leaves</p>
               </li>
               <li className="rounded-xl bg-white/70 px-3 py-2 ring-1 ring-brand-cream-200">
-                <p className="font-bold text-brand-primary-700">Pan-India</p>
-                <p className="text-xs text-brand-earth-700/80">Shipping</p>
+                <p className="font-bold text-brand-primary-700">Village</p>
+                <p className="text-xs text-brand-earth-700/80">Our home</p>
               </li>
             </ul>
           </div>
@@ -87,9 +87,9 @@ export default async function HomePage() {
       <section className="bg-brand-cream-100/60 py-16">
         <div className="container-page">
           <SectionHeading
-            eyebrow="Our Bestsellers"
-            title="Made fresh, batch by batch"
-            description="Each jar is hand-packed within 48 hours of being made — never sitting in a warehouse."
+            eyebrow="From The Kitchen"
+            title="Made the slow way, remembered instantly"
+            description="Mango, lemon, and bitter gourd pickles prepared in small batches, because some jars should still feel like they came from family."
           />
           {featured.length > 0 ? (
             <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -121,19 +121,53 @@ export default async function HomePage() {
           <div>
             <p className="badge-tag">Our Story</p>
             <h2 className="section-heading mt-3 font-display">
-              Three generations. One kitchen. One sun-soaked courtyard.
+              There is a house in Our Village where the afternoon light still falls on a row of jars.
             </h2>
             <p className="mt-4 text-brand-earth-700/85">
-              Our pickles come from a tiny kitchen in coastal Andhra Pradesh — the
-              same kitchen where Amma learned from her mother, and her mother
-              before her. Every jar is sun-cured on the same terracotta tiles,
-              packed in the same way, with the same patience.
+              Long before there was a brand, there was only this: a kitchen, a
+              woman with turmeric-stained fingers, and a man who tasted
+              everything twice before he said it was ready.
             </p>
             <p className="mt-4 text-brand-earth-700/85">
-              We don&apos;t use preservatives, artificial colours, or refined oils.
-              Just the ingredients we&apos;d use to feed our own children.
+              For years, these pickles travelled only in tins tucked into
+              suitcases and carried to children living far from home. What they
+              carried back was never just mango, lemon, or bitter gourd. It was
+              the memory of the table they missed.
             </p>
             <Link href="/about" className="btn-primary mt-6">Read Our Story</Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-brand-cream-100/60 py-16">
+        <div className="container-page grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+          <div className="card-warm">
+            <p className="badge-tag">The Kitchen</p>
+            <p className="mt-3 text-brand-earth-800">
+              Every jar begins in the same room. One stove. One window. One
+              woman who learned all this by standing beside her own mother.
+            </p>
+          </div>
+          <div className="card-warm">
+            <p className="badge-tag">The Tasting</p>
+            <p className="mt-3 text-brand-earth-800">
+              Before a batch leaves, it is tasted. If it isn&apos;t ready, it
+              waits another day. Some things cannot be rushed.
+            </p>
+          </div>
+          <div className="card-warm">
+            <p className="badge-tag">The Journey</p>
+            <p className="mt-3 text-brand-earth-800">
+              From Our Home kitchen to whatever table you call home today, even
+              if that table is in a hostel room or a quiet city flat.
+            </p>
+          </div>
+          <div className="card-warm">
+            <p className="badge-tag">The Feeling</p>
+            <p className="mt-3 text-brand-earth-800">
+              This is about the first bite that makes you pause for a second and
+              remember the people who used to serve you lunch.
+            </p>
           </div>
         </div>
       </section>
@@ -162,18 +196,18 @@ export default async function HomePage() {
       <section className="container-page py-20">
         <div className="overflow-hidden rounded-3xl bg-brand-primary-600 px-6 py-16 text-center text-white shadow-warm sm:px-16">
           <p className="font-script text-2xl text-brand-secondary-200">
-            From our village kitchen
+            For the table you miss
           </p>
           <h2 className="mt-2 font-display text-3xl font-bold sm:text-4xl">
-            Bring a jar of tradition home.
+            Bring a little of home back to your table.
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-brand-cream-100/90">
-            Order on the website, or send us a WhatsApp message — we&apos;ll take
-            care of the rest.
+            Order a jar, or send us a WhatsApp message if you want help finding
+            the pickle that tastes closest to the one you remember.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link href="/order" className="btn-primary !bg-white !text-brand-primary-700 hover:!bg-brand-cream-100">
-              Place an Order
+              Order A Jar
             </Link>
             <Link href="/bulk-orders" className="btn-secondary !border-white !text-white hover:!bg-white/10">
               Bulk Order Enquiry

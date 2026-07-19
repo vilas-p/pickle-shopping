@@ -60,7 +60,7 @@ class NotificationServiceTest {
                         Duration.ofMinutes(1),
                         true,
                     new NotificationProperties.Sms(SmsProviderType.MOCK, null, null, null, null, null, null, null),
-                    new NotificationProperties.WhatsApp(com.appaamma.pickles.domain.notification.WhatsAppProviderType.MOCK, null, null, null, null),
+                    new NotificationProperties.WhatsApp(com.appaamma.pickles.domain.notification.WhatsAppProviderType.MOCK, null, null, null, null, null, null, null),
                     new NotificationProperties.Email(com.appaamma.pickles.domain.notification.EmailProviderType.MOCK, null, null, null, null, null, null, null, null)
                 ),
                 new ObjectMapper()

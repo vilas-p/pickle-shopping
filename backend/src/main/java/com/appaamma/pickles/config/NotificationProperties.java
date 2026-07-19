@@ -25,7 +25,7 @@ public record NotificationProperties(
         retryBackoff = retryBackoff == null ? Duration.ofMinutes(5) : retryBackoff;
         retryScanInterval = retryScanInterval == null ? Duration.ofMinutes(1) : retryScanInterval;
                 sms = sms == null ? new Sms(SmsProviderType.MOCK, null, null, null, null, null, null, null) : sms;
-                whatsapp = whatsapp == null ? new WhatsApp(WhatsAppProviderType.MOCK, null, null, null, null) : whatsapp;
+                whatsapp = whatsapp == null ? new WhatsApp(WhatsAppProviderType.MOCK, null, null, null, null, null, null, null) : whatsapp;
                 email = email == null ? new Email(EmailProviderType.MOCK, null, null, null, null, null, null, null, null) : email;
     }
 
@@ -46,7 +46,10 @@ public record NotificationProperties(
             String baseUrl,
             String accessToken,
             String phoneNumberId,
-            String senderName
+            String senderName,
+            String msg91BaseUrl,
+            String msg91AuthKey,
+            String msg91IntegratedNumber
     ) {
     }
 
