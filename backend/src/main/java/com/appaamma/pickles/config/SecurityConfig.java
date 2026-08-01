@@ -82,9 +82,12 @@ public class SecurityConfig {
                                 "/api/v1/customer-auth/otp/resend",
                                 "/api/v1/customer-auth/otp/verify",
                                 "/api/v1/payments/webhook",
-                                "/api/v1/notifications/webhooks/msg91/whatsapp"
+                                "/api/v1/notifications/webhooks/msg91/whatsapp",
+                                "/api/v1/shipping/serviceability",
+                                "/api/v1/webhooks/shiprocket"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/orders/number/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/tracking/**").permitAll()
                         // Docs & health
                         .requestMatchers(
                                 "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",

@@ -45,6 +45,27 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage(), req);
     }
 
+    @ExceptionHandler(ShiprocketApiException.class)
+    public ResponseEntity<ErrorResponse> handleShiprocketApi(ShiprocketApiException ex, HttpServletRequest req) {
+        log.error("Shiprocket API error: {}", ex.getMessage());
+        return build(HttpStatus.BAD_GATEWAY, ex.getMessage(), req);
+    }
+
+    @ExceptionHandler(ShipmentCreationException.class)
+    public ResponseEntity<ErrorResponse> handleShipmentCreation(ShipmentCreationException ex, HttpServletRequest req) {
+        return build(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage(), req);
+    }
+
+    @ExceptionHandler(CourierUnavailableException.class)
+    public ResponseEntity<ErrorResponse> handleCourierUnavailable(CourierUnavailableException ex, HttpServletRequest req) {
+        return build(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage(), req);
+    }
+
+    @ExceptionHandler(ServiceabilityException.class)
+    public ResponseEntity<ErrorResponse> handleServiceability(ServiceabilityException ex, HttpServletRequest req) {
+        return build(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage(), req);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest req) {
         List<ErrorResponse.FieldErrorDetail> fieldErrors = ex.getBindingResult().getFieldErrors().stream()

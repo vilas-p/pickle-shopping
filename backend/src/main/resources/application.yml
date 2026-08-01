@@ -36,7 +36,7 @@ spring:
       write-dates-as-timestamps: false
 
 server:
-  port: ${SERVER_PORT:8002}
+  port: ${PORT:8080}
   servlet:
     context-path: /
   compression:
@@ -106,6 +106,21 @@ app:
     key-id: ${RAZORPAY_KEY_ID:}
     key-secret: ${RAZORPAY_KEY_SECRET:}
     webhook-secret: ${RAZORPAY_WEBHOOK_SECRET:}
+  shiprocket:
+    email: ${SHIPROCKET_EMAIL:appaammaspickles@gmail.com}
+    password: ${SHIPROCKET_PASSWORD:62C92lHMtqlfZ8S$yGhB3^sgdRpMyaw&}
+    base-url: ${SHIPROCKET_BASE_URL:https://apiv2.shiprocket.in/v1/external}
+    token-refresh-hours: ${SHIPROCKET_TOKEN_REFRESH_HOURS:216}
+    webhook-secret: ${SHIPROCKET_WEBHOOK_SECRET:}
+    pickup-location-id: ${SHIPROCKET_PICKUP_LOCATION_ID:86317462}
+    pickup-pincode: ${SHIPROCKET_PICKUP_PINCODE:585225}
+    default-weight-kg: ${SHIPROCKET_DEFAULT_WEIGHT_KG:0.5}
+    default-length-cm: ${SHIPROCKET_DEFAULT_LENGTH_CM:20}
+    default-breadth-cm: ${SHIPROCKET_DEFAULT_BREADTH_CM:15}
+    default-height-cm: ${SHIPROCKET_DEFAULT_HEIGHT_CM:10}
+    auto-create-shipment: ${SHIPROCKET_AUTO_CREATE_SHIPMENT:true}
+    auto-assign-awb: ${SHIPROCKET_AUTO_ASSIGN_AWB:true}
+    auto-schedule-pickup: ${SHIPROCKET_AUTO_SCHEDULE_PICKUP:false}
   store-location:
     label: ${APP_STORE_LOCATION_LABEL:Appa & Amma's Village Kitchen}
     line1: ${APP_STORE_LOCATION_LINE1:Village Kitchen Dispatch Centre}

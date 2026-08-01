@@ -4,6 +4,7 @@ export const ROUTES = {
   adminDashboard: "/admin/dashboard",
   adminContacts: "/admin/contacts",
   adminOrders: "/admin/orders",
+  adminShipments: "/admin/shipments",
   products: "/products",
   bulkOrders: "/bulk-orders",
   productDetail: (slug: string) => `/products/${slug}`,
