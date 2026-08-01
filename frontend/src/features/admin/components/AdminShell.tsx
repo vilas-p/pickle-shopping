@@ -9,6 +9,7 @@ const navItems = [
   { href: ROUTES.adminDashboard, label: "Dashboard" },
   { href: ROUTES.adminContacts, label: "Contacts" },
   { href: ROUTES.adminOrders, label: "Orders" },
+  { href: ROUTES.adminShipments, label: "Shipments" },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {

@@ -11,7 +11,8 @@ import org.springframework.context.annotation.Configuration;
         NotificationProperties.class,
         OtpProperties.class,
         RazorpayProperties.class,
-        StoreLocationProperties.class
+        StoreLocationProperties.class,
+        ShiprocketProperties.class
 })
 public class AppPropertiesConfig {
 }

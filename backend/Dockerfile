@@ -21,6 +21,6 @@ USER spring:spring
 COPY --from=builder /build/build/libs/pickles-backend.jar app.jar
 
 ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0 -XX:+UseG1GC"
-EXPOSE 8080
+EXPOSE ${PORT:-8080}
 
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dserver.port=${PORT:-8080} -jar app.jar"]
