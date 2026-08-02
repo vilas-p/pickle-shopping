@@ -103,9 +103,9 @@ app:
       ses-region: ${APP_NOTIFICATION_EMAIL_SES_REGION:ap-south-1}
       ses-from-address: ${APP_NOTIFICATION_EMAIL_SES_FROM_ADDRESS:noreply@appaammas.in}
   razorpay:
-    key-id: ${RAZORPAY_KEY_ID:}
-    key-secret: ${RAZORPAY_KEY_SECRET:}
-    webhook-secret: ${RAZORPAY_WEBHOOK_SECRET:}
+    key-id: ${RAZORPAY_KEY_ID:rzp_test_TFN4xbZ5J1FCME}
+    key-secret: ${RAZORPAY_KEY_SECRET:EEYr3C60gtSQLwK6LYWbXCQr}
+    webhook-secret: ${RAZORPAY_WEBHOOK_SECRET:your_webhook_secret_here}
   shiprocket:
     email: ${SHIPROCKET_EMAIL:appaammaspickles@gmail.com}
     password: ${SHIPROCKET_PASSWORD:62C92lHMtqlfZ8S$yGhB3^sgdRpMyaw&}
