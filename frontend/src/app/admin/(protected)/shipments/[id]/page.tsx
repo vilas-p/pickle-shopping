@@ -6,10 +6,12 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function AdminShipmentDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  return <ShipmentDetail shipmentId={Number(params.id)} />;
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default async function AdminShipmentDetailPage({ params }: PageProps) {
+  const { id } = await params;
+
+  return <ShipmentDetail shipmentId={Number(id)} />;
 }
