@@ -22,20 +22,6 @@ export default async function HomePage() {
 
   return (
     <>
-     <div
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          background: "red",
-          color: "white",
-          zIndex: 99999,
-          padding: "10px",
-        }}
-      >
-        API: {config.apiBaseUrl}
-      </div>
-
       {/* HERO */}
       <section className="relative overflow-hidden bg-warm-grain gradient-warm">
         <div className="container-page grid items-center gap-10 py-16 sm:py-24 md:grid-cols-2">
