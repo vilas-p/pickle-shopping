@@ -31,32 +31,32 @@ public class ShipmentController {
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<ShipmentResponse> getById(@PathVariable Long id) {
+    public ApiResponse<ShipmentResponse> getById(@PathVariable("id") Long id) {
         return ApiResponse.ok(shipmentService.getById(id));
     }
 
     @GetMapping("/order/{orderId}")
-    public ApiResponse<ShipmentResponse> getByOrderId(@PathVariable Long orderId) {
+    public ApiResponse<ShipmentResponse> getByOrderId(@PathVariable("orderId") Long orderId) {
         return ApiResponse.ok(shipmentService.getByOrderId(orderId));
     }
 
     @PostMapping("/{id}/assign-awb")
-    public ApiResponse<ShipmentResponse> assignAwb(@PathVariable Long id) {
+    public ApiResponse<ShipmentResponse> assignAwb(@PathVariable("id") Long id) {
         return ApiResponse.ok(shipmentService.assignAwb(id));
     }
 
     @PostMapping("/{id}/pickup")
-    public ApiResponse<ShipmentResponse> schedulePickup(@PathVariable Long id) {
+    public ApiResponse<ShipmentResponse> schedulePickup(@PathVariable("id") Long id) {
         return ApiResponse.ok(shipmentService.schedulePickup(id));
     }
 
     @PostMapping("/{id}/cancel")
-    public ApiResponse<ShipmentResponse> cancel(@PathVariable Long id, @RequestParam String reason) {
+    public ApiResponse<ShipmentResponse> cancel(@PathVariable("id") Long id, @RequestParam("reason") String reason) {
         return ApiResponse.ok(shipmentService.cancelShipment(id, reason));
     }
 
     @GetMapping("/{id}/label")
-    public ApiResponse<String> getLabel(@PathVariable Long id) {
+    public ApiResponse<String> getLabel(@PathVariable("id") Long id) {
         return ApiResponse.ok(shipmentService.getLabel(id));
     }
 }

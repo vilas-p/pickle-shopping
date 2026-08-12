@@ -38,6 +38,7 @@ export async function http<T>(
   { revalidate, tags, auth, headers, ...init }: HttpOptions = {},
 ): Promise<T> {
   const url = `${config.apiBaseUrl}${path}`;
+  const isFormData = typeof FormData !== "undefined" && init.body instanceof FormData;
 
   const next: { revalidate?: number | false; tags?: string[] } = {};
   if (revalidate !== undefined) next.revalidate = revalidate;
@@ -51,8 +52,8 @@ export async function http<T>(
     ...init,
     cache,
     headers: {
-      "Content-Type": "application/json",
       Accept: "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(headers ?? {}),
     },

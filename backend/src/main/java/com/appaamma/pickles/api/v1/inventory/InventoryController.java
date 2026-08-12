@@ -29,13 +29,13 @@ public class InventoryController {
 
     @Operation(summary = "List items at/below the given threshold (default 10)")
     @GetMapping("/low-stock")
-    public ApiResponse<List<InventoryResponse>> lowStock(@RequestParam(defaultValue = "10") int threshold) {
+    public ApiResponse<List<InventoryResponse>> lowStock(@RequestParam(value = "threshold", defaultValue = "10") int threshold) {
         return ApiResponse.ok(inventoryService.lowStock(threshold));
     }
 
     @Operation(summary = "Create or update inventory for a product")
     @PutMapping("/product/{productId}")
-    public ApiResponse<InventoryResponse> upsert(@PathVariable Long productId,
+    public ApiResponse<InventoryResponse> upsert(@PathVariable("productId") Long productId,
                                                   @Valid @RequestBody InventoryUpdateRequest request) {
         return ApiResponse.ok(inventoryService.upsert(productId, request), "Updated");
     }

@@ -3,9 +3,6 @@ spring:
     name: pickles-backend
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
-  output:
-    ansi:
-      enabled: ALWAYS
 
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/appaammas_pickles?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Kolkata}
@@ -24,6 +21,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+        default_batch_fetch_size: 50
         format_sql: true
         jdbc.time_zone: Asia/Kolkata
 
@@ -38,7 +36,7 @@ spring:
       write-dates-as-timestamps: false
 
 server:
-  port: ${SERVER_PORT:8001}
+  port: ${PORT:8002}
   servlet:
     context-path: /
   compression:
@@ -50,22 +48,95 @@ server:
 
 app:
   jwt:
-    secret: ${APP_JWT_SECRET:change-me-in-production-this-must-be-at-least-32-chars-long}
-    expiration-ms: ${APP_JWT_EXPIRATION_MS:86400000}
+    secret: ${APP_JWT_SECRET:}
+    expiration-ms: ${APP_JWT_EXPIRATION_MS:28800000}
   customer-jwt:
     # Distinct from app.jwt — customer (storefront) JWTs use their own signing key so admin
     # and customer tokens cannot be substituted for each other.
-    secret: ${APP_CUSTOMER_JWT_SECRET:change-me-customer-secret-must-be-at-least-32-chars-long}
-    expiration-ms: ${APP_CUSTOMER_JWT_EXPIRATION_MS:604800000}   # 7 days
+    secret: ${APP_CUSTOMER_JWT_SECRET:}
+    expiration-ms: ${APP_CUSTOMER_JWT_EXPIRATION_MS:43200000}
   otp:
     code-length: ${APP_OTP_CODE_LENGTH:6}
     ttl: ${APP_OTP_TTL:PT10M}
     max-attempts: ${APP_OTP_MAX_ATTEMPTS:5}
     rate-limit-max-per-window: ${APP_OTP_RATE_MAX:5}
     rate-limit-window: ${APP_OTP_RATE_WINDOW:PT15M}
+    expose-debug-code: ${APP_OTP_EXPOSE_DEBUG_CODE:false}
+    phone-channel: ${APP_OTP_PHONE_CHANNEL:WHATSAPP}
+    http:
+      url: ${APP_OTP_HTTP_URL:}
+      auth-header-name: ${APP_OTP_HTTP_AUTH_HEADER_NAME:Authorization}
+      auth-token: ${APP_OTP_HTTP_AUTH_TOKEN:}
+      channel-name: ${APP_OTP_HTTP_CHANNEL_NAME:http}
+      message-template: ${APP_OTP_HTTP_MESSAGE_TEMPLATE:Your Appa & Amma's Pickles {{purpose}} code is {{code}}. It expires in {{ttlMinutes}} minutes.}
+  notification:
+    max-attempts: ${APP_NOTIFICATION_MAX_ATTEMPTS:3}
+    retry-backoff: ${APP_NOTIFICATION_RETRY_BACKOFF:PT5M}
+    retry-scan-interval: ${APP_NOTIFICATION_RETRY_SCAN_INTERVAL:60000}
+    async-enabled: ${APP_NOTIFICATION_ASYNC_ENABLED:true}
+    sms:
+      provider: ${APP_NOTIFICATION_SMS_PROVIDER:MOCK}
+      msg91-base-url: ${APP_NOTIFICATION_SMS_MSG91_BASE_URL:https://api.msg91.com/api/v5/flow/}
+      msg91-auth-key: ${APP_NOTIFICATION_SMS_MSG91_AUTH_KEY:548746AXvlxakOBz6a4e966fP1}
+      msg91-sender-id: ${APP_NOTIFICATION_SMS_MSG91_SENDER_ID:APPAAM}
+      twilio-base-url: ${APP_NOTIFICATION_SMS_TWILIO_BASE_URL:https://api.twilio.com/2010-04-01/Accounts/${APP_NOTIFICATION_SMS_TWILIO_ACCOUNT_SID}/Messages.json}
+      twilio-account-sid: ${APP_NOTIFICATION_SMS_TWILIO_ACCOUNT_SID:}
+      twilio-auth-token: ${APP_NOTIFICATION_SMS_TWILIO_AUTH_TOKEN:}
+      twilio-from-number: ${APP_NOTIFICATION_SMS_TWILIO_FROM_NUMBER:}
+    whatsapp:
+      provider: ${APP_NOTIFICATION_WHATSAPP_PROVIDER:MOCK}
+      base-url: ${APP_NOTIFICATION_WHATSAPP_BASE_URL:https://graph.facebook.com/v20.0/${APP_NOTIFICATION_WHATSAPP_PHONE_NUMBER_ID}/messages}
+      access-token: ${APP_NOTIFICATION_WHATSAPP_ACCESS_TOKEN:}
+      phone-number-id: ${APP_NOTIFICATION_WHATSAPP_PHONE_NUMBER_ID:}
+      sender-name: ${APP_NOTIFICATION_WHATSAPP_SENDER_NAME:Appa & Amma's Pickles}
+      msg91-base-url: ${APP_NOTIFICATION_WHATSAPP_MSG91_BASE_URL:https://api.msg91.com/api/v5/whatsapp/whatsapp-outbound-message/bulk/}
+      msg91-auth-key: ${APP_NOTIFICATION_WHATSAPP_MSG91_AUTH_KEY:${APP_NOTIFICATION_SMS_MSG91_AUTH_KEY:}}
+      msg91-integrated-number: ${APP_NOTIFICATION_WHATSAPP_MSG91_INTEGRATED_NUMBER:919880193310}
+    email:
+      provider: ${APP_NOTIFICATION_EMAIL_PROVIDER:MOCK}
+      resend-base-url: ${APP_NOTIFICATION_EMAIL_RESEND_BASE_URL:https://api.resend.com/emails}
+      resend-api-key: ${APP_NOTIFICATION_EMAIL_RESEND_API_KEY:}
+      resend-from-address: ${APP_NOTIFICATION_EMAIL_RESEND_FROM_ADDRESS:noreply@appaammas.in}
+      ses-endpoint-url: ${APP_NOTIFICATION_EMAIL_SES_ENDPOINT_URL:}
+      ses-access-key: ${APP_NOTIFICATION_EMAIL_SES_ACCESS_KEY:}
+      ses-secret-key: ${APP_NOTIFICATION_EMAIL_SES_SECRET_KEY:}
+      ses-region: ${APP_NOTIFICATION_EMAIL_SES_REGION:ap-south-1}
+      ses-from-address: ${APP_NOTIFICATION_EMAIL_SES_FROM_ADDRESS:noreply@appaammas.in}
   razorpay:
-    key-id: ${RAZORPAY_KEY_ID:rzp_test_T7nwEJPZkW0BbI}
-    key-secret: ${RAZORPAY_KEY_SECRET:zM6mY9bkli4Gld7SErnUIreb}
+    key-id: ${RAZORPAY_KEY_ID:rzp_test_TFN4xbZ5J1FCME}
+    key-secret: ${RAZORPAY_KEY_SECRET:EEYr3C60gtSQLwK6LYWbXCQr}
+    webhook-secret: ${RAZORPAY_WEBHOOK_SECRET:your_webhook_secret_here}
+  shiprocket:
+    email: ${SHIPROCKET_EMAIL:appaammaspickles@gmail.com}
+    password: ${SHIPROCKET_PASSWORD:62C92lHMtqlfZ8S$yGhB3^sgdRpMyaw&}
+    base-url: ${SHIPROCKET_BASE_URL:https://apiv2.shiprocket.in/v1/external}
+    token-refresh-hours: ${SHIPROCKET_TOKEN_REFRESH_HOURS:216}
+    webhook-secret: ${SHIPROCKET_WEBHOOK_SECRET:}
+    pickup-location-id: ${SHIPROCKET_PICKUP_LOCATION_ID:86317462}
+    pickup-pincode: ${SHIPROCKET_PICKUP_PINCODE:585225}
+    default-weight-kg: ${SHIPROCKET_DEFAULT_WEIGHT_KG:0.5}
+    default-length-cm: ${SHIPROCKET_DEFAULT_LENGTH_CM:20}
+    default-breadth-cm: ${SHIPROCKET_DEFAULT_BREADTH_CM:15}
+    default-height-cm: ${SHIPROCKET_DEFAULT_HEIGHT_CM:10}
+    auto-create-shipment: ${SHIPROCKET_AUTO_CREATE_SHIPMENT:true}
+    auto-assign-awb: ${SHIPROCKET_AUTO_ASSIGN_AWB:true}
+    auto-schedule-pickup: ${SHIPROCKET_AUTO_SCHEDULE_PICKUP:false}
+  store-location:
+    label: ${APP_STORE_LOCATION_LABEL:Appa & Amma's Village Kitchen}
+    line1: ${APP_STORE_LOCATION_LINE1:Village Kitchen Dispatch Centre}
+    city: ${APP_STORE_LOCATION_CITY:Bidar}
+    state: ${APP_STORE_LOCATION_STATE:Karnataka}
+    pincode: ${APP_STORE_LOCATION_PINCODE:585225}
+  storage:
+    s3:
+      bucket: ${APP_STORAGE_S3_BUCKET:appaammaspickles-assets-721730271019-ap-south-1-an}
+      region: ${APP_STORAGE_S3_REGION:ap-south-1}
+      access-key: ${APP_STORAGE_S3_ACCESS_KEY:}
+      secret-key: ${APP_STORAGE_S3_SECRET_KEY:}
+      endpoint-url: ${APP_STORAGE_S3_ENDPOINT_URL:}
+      public-base-url: ${APP_STORAGE_S3_PUBLIC_BASE_URL:}
+      product-prefix: ${APP_STORAGE_S3_PRODUCT_PREFIX:products}
+      max-file-size-bytes: ${APP_STORAGE_S3_MAX_FILE_SIZE_BYTES:52428800}
   cors:
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:3000}
 
@@ -89,5 +160,5 @@ management:
 logging:
   level:
     root: ERROR
-    com.appaamma: INFO
-    org.hibernate.SQL: INFO
+    com.appaamma: DEBUG
+    org.hibernate.SQL: DEBUG

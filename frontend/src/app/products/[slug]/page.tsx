@@ -9,6 +9,7 @@ import { formatPrice } from "@/shared/lib/format";
 import { serializeJsonForScript } from "@/shared/lib/json";
 import { ProductActions } from "@/features/product/components/ProductActions";
 import { ProductGallery } from "@/features/product/components/ProductGallery";
+import { productImages } from "@/features/product/utils";
 import { ReviewCard } from "@/features/review/components/ReviewCard";
 
 interface PageProps {
@@ -19,6 +20,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   try {
     const product = await productsApi.bySlug(slug);
+    const imageUrls = productImages(product).map((item) => item.url);
     return {
       title: product.name,
       description: product.shortDescription,
@@ -26,7 +28,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       openGraph: {
         title: product.name,
         description: product.shortDescription,
-        images: product.images?.[0]?.url ? [product.images[0].url] : undefined,
+        images: imageUrls.length > 0 ? [imageUrls[0]] : undefined,
         type: "website",
       },
     };
@@ -68,7 +70,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
     "@type": "Product",
     name: product.name,
     description: product.shortDescription,
-    image: product.images?.map((i) => i.url),
+    image: productImages(product).map((i) => i.url),
     brand: { "@type": "Brand", name: config.brand.name },
     offers: {
       "@type": "Offer",

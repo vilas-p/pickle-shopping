@@ -69,7 +69,8 @@ public class SecurityConfig {
                                 "/api/v1/products/slug/**",
                                 "/api/v1/categories", "/api/v1/categories/slug/**",
                                 "/api/v1/reviews", "/api/v1/reviews/latest",
-                                "/api/v1/reviews/product/**"
+                                "/api/v1/reviews/product/**",
+                                "/api/v1/media/banners", "/api/v1/media/site"
                         ).permitAll()
                         // Public writes
                         .requestMatchers(HttpMethod.POST,

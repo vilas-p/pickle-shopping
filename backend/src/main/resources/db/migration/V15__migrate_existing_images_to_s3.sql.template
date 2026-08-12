@@ -1,0 +1,81 @@
+-- ============================================================
+-- DATA MIGRATION: Update existing product_images to S3 URLs
+-- ============================================================
+-- Run this AFTER uploading existing images to S3.
+-- Replace the S3 URLs below with actual URLs from your uploads.
+--
+-- INSTRUCTIONS:
+-- 1. Upload each image from frontend/public/images/products/ to S3 via admin UI
+-- 2. Copy the returned S3 URL for each image
+-- 3. Update this script with the actual S3 URLs
+-- 4. Run this migration against your database
+-- ============================================================
+
+-- Mango Pickle images
+UPDATE product_images SET
+    url = 'https://appaammaspickles-assets-721730271019-ap-south-1-an.s3.ap-south-1.amazonaws.com/products/mango-pickle/primary.jpg',
+    s3_key = 'products/mango-pickle/primary.jpg'
+WHERE url = '/images/products/mango-pickle.jpg';
+
+UPDATE product_images SET
+    url = 'https://appaammaspickles-assets-721730271019-ap-south-1-an.s3.ap-south-1.amazonaws.com/products/mango-pickle/1.png',
+    s3_key = 'products/mango-pickle/1.png'
+WHERE url = '/images/products/mango-pickle-1.png';
+
+UPDATE product_images SET
+    url = 'https://appaammaspickles-assets-721730271019-ap-south-1-an.s3.ap-south-1.amazonaws.com/products/mango-pickle/2.png',
+    s3_key = 'products/mango-pickle/2.png'
+WHERE url = '/images/products/mango-pickle-2.png';
+
+UPDATE product_images SET
+    url = 'https://appaammaspickles-assets-721730271019-ap-south-1-an.s3.ap-south-1.amazonaws.com/products/mango-pickle/3.png',
+    s3_key = 'products/mango-pickle/3.png'
+WHERE url = '/images/products/mango-pickle-3.png';
+
+UPDATE product_images SET
+    url = 'https://appaammaspickles-assets-721730271019-ap-south-1-an.s3.ap-south-1.amazonaws.com/products/mango-pickle/4.png',
+    s3_key = 'products/mango-pickle/4.png'
+WHERE url = '/images/products/mango-pickle-4.png';
+
+UPDATE product_images SET
+    url = 'https://appaammaspickles-assets-721730271019-ap-south-1-an.s3.ap-south-1.amazonaws.com/products/mango-pickle/5.png',
+    s3_key = 'products/mango-pickle/5.png'
+WHERE url = '/images/products/mango-pickle-5.png';
+
+-- Lemon Pickle images
+UPDATE product_images SET
+    url = 'https://appaammaspickles-assets-721730271019-ap-south-1-an.s3.ap-south-1.amazonaws.com/products/lemon-pickle/1.png',
+    s3_key = 'products/lemon-pickle/1.png'
+WHERE url = '/images/products/lemon-pickle-1.png';
+
+UPDATE product_images SET
+    url = 'https://appaammaspickles-assets-721730271019-ap-south-1-an.s3.ap-south-1.amazonaws.com/products/lemon-pickle/2.png',
+    s3_key = 'products/lemon-pickle/2.png'
+WHERE url = '/images/products/lemon-pickle-2.png';
+
+-- Bitter Gourd Pickle images
+UPDATE product_images SET
+    url = 'https://appaammaspickles-assets-721730271019-ap-south-1-an.s3.ap-south-1.amazonaws.com/products/bitter-gourd-pickle/1.png',
+    s3_key = 'products/bitter-gourd-pickle/1.png'
+WHERE url = '/images/products/bitter-gourd-pickle-1.png';
+
+UPDATE product_images SET
+    url = 'https://appaammaspickles-assets-721730271019-ap-south-1-an.s3.ap-south-1.amazonaws.com/products/bitter-gourd-pickle/2.png',
+    s3_key = 'products/bitter-gourd-pickle/2.png'
+WHERE url = '/images/products/bitter-gourd-pickle-2.png';
+
+-- ============================================================
+-- SITE MEDIA: Insert records for hero/about/logo images
+-- ============================================================
+-- Run these AFTER uploading the corresponding images to S3 via admin UI.
+-- Replace URLs with actual S3 URLs from uploads.
+
+-- INSERT INTO media (original_filename, s3_key, url, content_type, media_type, file_size, category, alt_text, display_order, is_active)
+-- VALUES
+-- ('hero-pickle-jar.png', 'hero/2026/08/hero-pickle-jar.png', 'https://...', 'image/png', 'IMAGE', 0, 'HERO', 'hero pickle jar', 0, 1),
+-- ('story-grandmother.png', 'hero/2026/08/story-grandmother.png', 'https://...', 'image/png', 'IMAGE', 0, 'HERO', 'story grandmother', 1, 1),
+-- ('01-kitchen-dawn.png', 'about/2026/08/01-kitchen-dawn.png', 'https://...', 'image/png', 'IMAGE', 0, 'ABOUT', 'Kitchen at dawn', 0, 1),
+-- ('02-amma-cutting-mango.png', 'about/2026/08/02-amma-cutting-mango.png', 'https://...', 'image/png', 'IMAGE', 0, 'ABOUT', 'Amma cutting mango', 1, 1),
+-- ('03-village-lane-dawn.png', 'about/2026/08/03-village-lane-dawn.png', 'https://...', 'image/png', 'IMAGE', 0, 'ABOUT', 'Village lane at dawn', 2, 1),
+-- ('04-jar-sealed-dusk.png', 'about/2026/08/04-jar-sealed-dusk.png', 'https://...', 'image/png', 'IMAGE', 0, 'ABOUT', 'Jar sealed at dusk', 3, 1),
+-- ('05-kitchen-clay-jars.png', 'about/2026/08/05-kitchen-clay-jars.png', 'https://...', 'image/png', 'IMAGE', 0, 'ABOUT', 'Kitchen clay jars', 4, 1);

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import type { Product, ProductVariant } from "../types";
 import { formatPrice } from "@/shared/lib/format";
-import { primaryImage } from "../utils";
+import { isVideoMedia, primaryImage } from "../utils";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/features/cart/store";
 import { ROUTES } from "@/shared/constants/routes";
@@ -24,6 +24,7 @@ export function ProductCard({ product }: Props) {
   const images = product.images && product.images.length > 0 ? product.images : [];
   const currentImage = images.length > 0 ? images[currentImageIndex] : primaryImage(product);
   const imageUrl = typeof currentImage === 'string' ? currentImage : (currentImage?.url ?? primaryImage(product));
+  const currentIsVideo = typeof currentImage === "string" ? false : isVideoMedia(currentImage);
 
   const activeVariants = product.variants?.filter((v) => v.active) ?? [];
   const activeVariantsSorted = [...activeVariants].sort((a, b) => a.displayOrder - b.displayOrder);
@@ -78,13 +79,31 @@ export function ProductCard({ product }: Props) {
 
     {/* Main Product Image with Carousel Controls */}
     <div className="product-card-media relative group/carousel">
-      <Image
-        src={imageUrl}
-        alt={images[currentImageIndex]?.altText ?? product.name}
-        fill
-        sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-        className="product-card-media"
-      />
+      {currentIsVideo ? (
+        <>
+          <video
+            src={imageUrl}
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            className="h-full w-full object-cover"
+          >
+            Your browser does not support product video playback.
+          </video>
+          <span className="absolute left-3 top-3 z-10 rounded-full bg-black/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-white">
+            Video
+          </span>
+        </>
+      ) : (
+        <Image
+          src={imageUrl}
+          alt={images[currentImageIndex]?.altText ?? product.name}
+          fill
+          sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+          className="product-card-media"
+        />
+      )}
 
       {/* Navigation Arrows - Show on Hover */}
       {images.length > 1 && (

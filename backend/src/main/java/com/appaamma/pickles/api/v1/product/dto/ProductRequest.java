@@ -1,5 +1,6 @@
 package com.appaamma.pickles.api.v1.product.dto;
 
+import com.appaamma.pickles.domain.product.ProductMediaType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 
@@ -26,6 +27,7 @@ public record ProductRequest(
             @NotBlank @Size(max = 500) String url,
             @Size(max = 200) String altText,
             Integer displayOrder,
-            boolean primary
+            boolean primary,
+            ProductMediaType mediaType
     ) {}
 }

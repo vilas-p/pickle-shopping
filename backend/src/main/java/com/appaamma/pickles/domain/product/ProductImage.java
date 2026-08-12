@@ -24,6 +24,9 @@ public class ProductImage extends BaseEntity {
     @Column(nullable = false, length = 500)
     private String url;
 
+    @Column(name = "s3_key", length = 500)
+    private String s3Key;
+
     @Column(length = 200)
     private String altText;
 
@@ -34,4 +37,9 @@ public class ProductImage extends BaseEntity {
     @Column(nullable = false)
     @Builder.Default
     private boolean primary = false;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "media_type", nullable = false, length = 16)
+    @Builder.Default
+    private ProductMediaType mediaType = ProductMediaType.IMAGE;
 }

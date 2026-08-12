@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { productsApi } from "@/features/product/api";
 import { reviewsApi } from "@/features/review/api";
+import { publicMediaApi } from "@/features/admin/media/api";
 import { config } from "@/shared/lib/config";
 import { ProductCard } from "@/features/product/components/ProductCard";
 import { ReviewCard } from "@/features/review/components/ReviewCard";
@@ -10,15 +11,22 @@ import { SectionHeading } from "@/shared/ui/SectionHeading";
 
 export default async function HomePage() {
   // Server-side parallel data fetch.
-  const [featuredResult, latestReviewsResult] =
+  const [featuredResult, latestReviewsResult, heroMediaResult] =
     await Promise.allSettled([
       productsApi.featured(),
       reviewsApi.latest(),
+      publicMediaApi.getSiteMedia("HERO"),
     ]);
 
   const featured = featuredResult.status === "fulfilled" ? featuredResult.value : [];
   const latestReviews =
     latestReviewsResult.status === "fulfilled" ? latestReviewsResult.value : [];
+  const heroMedia = heroMediaResult.status === "fulfilled" ? heroMediaResult.value : [];
+
+  const heroImage = heroMedia.find((m) => m.altText?.includes("hero") || m.category === "HERO")?.url
+    ?? "/images/hero-pickle-jar.png";
+  const storyImage = heroMedia.find((m) => m.altText?.includes("story"))?.url
+    ?? "/images/story-grandmother.png";
 
   return (
     <>
@@ -66,7 +74,7 @@ export default async function HomePage() {
           <div className="relative">
             <div className="relative mx-auto aspect-square w-full max-w-md rotate-2 overflow-hidden rounded-[2.5rem] bg-brand-primary-100 shadow-warm ring-1 ring-brand-primary-200">
               <Image
-                src="/images/hero-pickle-jar.png"
+                src={heroImage}
                 alt="Traditional clay pickle jar with mango pickle"
                 fill
                 priority
@@ -112,7 +120,7 @@ export default async function HomePage() {
         <div className="grid items-center gap-12 md:grid-cols-2">
           <div className="relative aspect-[4/5] overflow-hidden rounded-3xl shadow-warm">
             <Image
-              src="/images/story-grandmother.png"
+              src={storyImage}
               alt="Amma preparing pickles in the village kitchen"
               fill
               className="object-cover"

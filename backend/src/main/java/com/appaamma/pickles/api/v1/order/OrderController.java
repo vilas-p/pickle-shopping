@@ -47,7 +47,7 @@ public class OrderController {
     @Operation(summary = "Get order by order number (public — for receipt page)")
     @GetMapping("/number/{orderNumber}")
     public ApiResponse<PublicOrderResponse> byNumber(
-            @PathVariable
+            @PathVariable("orderNumber")
             @Pattern(regexp = ORDER_NUMBER_PATTERN, message = "Invalid order number format")
             String orderNumber) {
         return ApiResponse.ok(orderService.getPublicTrackingByOrderNumber(orderNumber));
@@ -57,7 +57,7 @@ public class OrderController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
     public ApiResponse<PageResponse<OrderResponse>> list(
-            @RequestParam(required = false) OrderStatus status,
+            @RequestParam(value = "status", required = false) OrderStatus status,
             @PageableDefault(size = 20, sort = "createdAt") Pageable pageable
     ) {
         return ApiResponse.ok(orderService.list(status, pageable));
@@ -66,14 +66,14 @@ public class OrderController {
     @Operation(summary = "[Admin] Get order by id")
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
-    public ApiResponse<OrderResponse> byId(@PathVariable Long id) {
+    public ApiResponse<OrderResponse> byId(@PathVariable("id") Long id) {
         return ApiResponse.ok(orderService.getById(id));
     }
 
     @Operation(summary = "[Admin] Update order status")
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
-    public ApiResponse<OrderResponse> updateStatus(@PathVariable Long id,
+    public ApiResponse<OrderResponse> updateStatus(@PathVariable("id") Long id,
                                                     @Valid @RequestBody UpdateOrderStatusRequest req) {
         return ApiResponse.ok(orderService.updateStatus(id, req.status()), "Status updated");
     }
@@ -93,7 +93,7 @@ public class OrderController {
     @PreAuthorize("hasRole('CUSTOMER')")
     public ApiResponse<OrderResponse> myOrderByNumber(
             @AuthenticationPrincipal CustomerPrincipal principal,
-            @PathVariable
+            @PathVariable("orderNumber")
             @Pattern(regexp = ORDER_NUMBER_PATTERN, message = "Invalid order number format")
             String orderNumber
     ) {

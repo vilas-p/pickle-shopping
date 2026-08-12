@@ -134,6 +134,7 @@ public class ProductService {
                     .altText(StringUtils.hasText(img.altText()) ? img.altText() : product.getName())
                     .displayOrder(img.displayOrder() != null ? img.displayOrder() : 0)
                     .primary(img.primary())
+                    .mediaType(img.mediaType() != null ? img.mediaType() : ProductMediaType.IMAGE)
                     .build();
             product.addImage(image);
         }

@@ -34,7 +34,7 @@ public class NotificationAdminController {
 
     @Operation(summary = "Get notification template by code")
     @GetMapping("/templates/{templateCode}")
-    public ApiResponse<NotificationTemplateResponse> getTemplate(@PathVariable String templateCode) {
+    public ApiResponse<NotificationTemplateResponse> getTemplate(@PathVariable("templateCode") String templateCode) {
         return ApiResponse.ok(notificationAdminService.getTemplate(templateCode));
     }
 
@@ -49,7 +49,7 @@ public class NotificationAdminController {
     @Operation(summary = "Update notification template")
     @PutMapping("/templates/{templateCode}")
     public ApiResponse<NotificationTemplateResponse> updateTemplate(
-            @PathVariable String templateCode,
+            @PathVariable("templateCode") String templateCode,
             @Valid @RequestBody NotificationTemplateRequest request
     ) {
         return ApiResponse.ok(notificationAdminService.updateTemplate(templateCode, request), "Template updated");
@@ -58,8 +58,8 @@ public class NotificationAdminController {
     @Operation(summary = "List notification logs")
     @GetMapping("/logs")
     public ApiResponse<PageResponse<NotificationLogResponse>> listLogs(
-            @RequestParam(required = false) NotificationChannel channel,
-            @RequestParam(required = false) String templateCode,
+            @RequestParam(value = "channel", required = false) NotificationChannel channel,
+            @RequestParam(value = "templateCode", required = false) String templateCode,
             @PageableDefault(size = 20, sort = "createdAt") Pageable pageable
     ) {
         return ApiResponse.ok(notificationAdminService.listLogs(channel, templateCode, pageable));
