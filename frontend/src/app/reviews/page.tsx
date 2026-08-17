@@ -7,7 +7,7 @@ import { SectionHeading } from "@/shared/ui/SectionHeading";
 export const metadata: Metadata = {
   title: "Customer Reviews",
   description:
-    "Read what customers across India are saying about Appa & Amma's pickles — share your own review too.",
+    "Read what customers across India are saying about Appa & Amma's pickles and learn how customers can review their purchases.",
   alternates: { canonical: "/reviews" },
 };
 
@@ -22,7 +22,7 @@ export default async function ReviewsPage() {
       <SectionHeading
         eyebrow="Reviews"
         title="From our customers' kitchens"
-        description="Honest, unedited reviews from the families who eat our pickles every day."
+        description="Honest, unedited reviews from customers who have purchased our pickles."
       />
 
       <div className="mt-10 grid gap-8 lg:grid-cols-3">

@@ -1,14 +1,14 @@
 package com.appaamma.pickles.api.v1.customerauth;
 
+import com.appaamma.pickles.api.v1.customerauth.otp.OtpDeliveryStrategy;
+import com.appaamma.pickles.api.v1.customerauth.otp.OtpDeliveryStrategyFactory;
 import com.appaamma.pickles.config.OtpProperties;
-import com.appaamma.pickles.api.v1.notification.event.LoginOtpRequestedEvent;
 import com.appaamma.pickles.domain.otp.*;
 import com.appaamma.pickles.exception.BadRequestException;
 import com.appaamma.pickles.exception.TooManyRequestsException;
 import com.appaamma.pickles.security.RequestRateLimiter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +31,7 @@ public class OtpService {
     private static final int MAX_VERIFY_ATTEMPTS_PER_IDENTIFIER_WINDOW = 10;
 
     private final OtpRepository otpRepository;
-    private final ApplicationEventPublisher applicationEventPublisher;
+    private final OtpDeliveryStrategyFactory deliveryStrategyFactory;
     private final PasswordEncoder passwordEncoder;
     private final OtpProperties props;
     private final RequestRateLimiter requestRateLimiter;
@@ -76,16 +76,14 @@ public class OtpService {
                 .build();
         otpRepository.save(token);
 
-            String channel = kind == OtpIdentifierKind.PHONE
-                    ? props.phoneChannel().name().toLowerCase()
-                    : "email";
-            applicationEventPublisher.publishEvent(new LoginOtpRequestedEvent(
-                kind,
-                normalised,
-                "Customer",
-                code,
-                Math.max(1, props.ttl().toMinutes())
-            ));
+        OtpDeliveryStrategy strategy = deliveryStrategyFactory.getActiveStrategy();
+        String channel = strategy.deliver(
+            kind,
+            normalised,
+            code,
+            Math.max(1, props.ttl().toMinutes())
+        );
+
         log.info("OTP issued: purpose={} kind={} channel={} ttlSeconds={}",
                 purpose, kind, channel, props.ttl().toSeconds());
 
@@ -119,7 +117,8 @@ public class OtpService {
                 .orElseThrow(() -> new BadRequestException(
                         "No active code for this number. Please request a new one."));
 
-        if (!passwordEncoder.matches(submittedCode, token.getCodeHash())) {
+        OtpDeliveryStrategy strategy = deliveryStrategyFactory.getActiveStrategy();
+        if (!strategy.verify(submittedCode, token.getCodeHash(), props.codeLength(), passwordEncoder)) {
             token.setAttempts(token.getAttempts() + 1);
             String message = token.getAttempts() < token.getMaxAttempts()
                 ? "Invalid or expired code. Please try again."

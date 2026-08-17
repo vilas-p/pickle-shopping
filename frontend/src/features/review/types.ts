@@ -12,8 +12,7 @@ export interface Review {
 }
 
 export interface ReviewPayload {
-  productId?: number;
-  authorName: string;
+  productId: number;
   authorCity?: string;
   rating: number;
   title: string;

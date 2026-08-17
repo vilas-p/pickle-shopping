@@ -3,11 +3,17 @@ package com.appaamma.pickles.api.v1.review;
 import com.appaamma.pickles.api.v1.review.dto.ReviewRequest;
 import com.appaamma.pickles.api.v1.review.dto.ReviewResponse;
 import com.appaamma.pickles.common.PageResponse;
+import com.appaamma.pickles.domain.customer.Customer;
+import com.appaamma.pickles.domain.customer.CustomerRepository;
+import com.appaamma.pickles.domain.order.OrderRepository;
 import com.appaamma.pickles.domain.product.Product;
 import com.appaamma.pickles.domain.product.ProductRepository;
 import com.appaamma.pickles.domain.review.Review;
 import com.appaamma.pickles.domain.review.ReviewRepository;
+import com.appaamma.pickles.exception.BadRequestException;
+import com.appaamma.pickles.exception.DuplicateResourceException;
 import com.appaamma.pickles.exception.ResourceNotFoundException;
+import com.appaamma.pickles.security.CustomerPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,24 +27,37 @@ import java.util.List;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final CustomerRepository customerRepository;
+    private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final ReviewMapper reviewMapper;
 
     @Transactional
-    public ReviewResponse create(ReviewRequest request) {
-        Product product = null;
-        if (request.productId() != null) {
-            product = productRepository.findById(request.productId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Product", "id", request.productId()));
+    public ReviewResponse create(CustomerPrincipal principal, ReviewRequest request) {
+        Customer customer = customerRepository.findById(principal.customerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Customer", "id", principal.customerId()));
+
+        Product product = productRepository.findById(request.productId())
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", request.productId()));
+
+        boolean hasPurchased = orderRepository.existsOrderItemForCustomerAndProductId(customer.getId(), product.getId());
+        if (!hasPurchased) {
+            throw new BadRequestException("You can review a product only after purchasing it.");
         }
+
+        if (reviewRepository.existsByCustomerIdAndProductId(customer.getId(), product.getId())) {
+            throw new DuplicateResourceException("You have already reviewed this product.");
+        }
+
         Review review = Review.builder()
                 .product(product)
-                .authorName(request.authorName())
+                .customer(customer)
+                .authorName(customer.getFullName())
                 .authorCity(request.authorCity())
                 .rating(request.rating())
                 .title(request.title())
                 .body(request.body())
-            .approved(true)
+                .approved(true)
                 .build();
         return reviewMapper.toResponse(reviewRepository.save(review));
     }

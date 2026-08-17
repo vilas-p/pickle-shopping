@@ -16,6 +16,8 @@ import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -81,9 +83,11 @@ public class ProductService {
                 .active(request.active())
                 .featured(request.featured())
                 .images(new ArrayList<>())
+                .variants(new ArrayList<>())
                 .build();
 
         applyImages(product, request);
+        syncVariants(product, request.variants());
         return productMapper.toResponse(productRepository.save(product));
     }
 
@@ -114,6 +118,7 @@ public class ProductService {
 
         product.getImages().clear();
         applyImages(product, request);
+        syncVariants(product, request.variants());
 
         return productMapper.toResponse(productRepository.save(product));
     }
@@ -134,8 +139,39 @@ public class ProductService {
                     .altText(StringUtils.hasText(img.altText()) ? img.altText() : product.getName())
                     .displayOrder(img.displayOrder() != null ? img.displayOrder() : 0)
                     .primary(img.primary())
+                    .mediaType(img.mediaType() != null ? img.mediaType() : ProductMediaType.IMAGE)
                     .build();
             product.addImage(image);
         }
+    }
+
+    // Reconciles the managed variants collection: updates existing rows by id, adds new ones, removes the rest.
+    private void syncVariants(Product product, List<ProductRequest.ProductVariantRequest> variantRequests) {
+        if (variantRequests == null) return;
+
+        Map<Long, ProductVariant> existingById = product.getVariants().stream()
+                .filter(v -> v.getId() != null)
+                .collect(Collectors.toMap(ProductVariant::getId, v -> v));
+
+        List<ProductVariant> next = new ArrayList<>();
+        int order = 0;
+        for (var req : variantRequests) {
+            ProductVariant variant = req.id() != null ? existingById.get(req.id()) : null;
+            if (variant == null) {
+                variant = new ProductVariant();
+            }
+            variant.setProduct(product);
+            variant.setWeight(req.weight());
+            variant.setSku(StringUtils.hasText(req.sku()) ? req.sku() : null);
+            variant.setPrice(req.price());
+            variant.setCompareAtPrice(req.compareAtPrice());
+            variant.setDisplayOrder(req.displayOrder() != null ? req.displayOrder() : order);
+            variant.setActive(req.active());
+            next.add(variant);
+            order++;
+        }
+
+        product.getVariants().clear();
+        product.getVariants().addAll(next);
     }
 }

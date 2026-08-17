@@ -54,7 +54,7 @@ public class AddressBookController {
     @PreAuthorize("hasRole('CUSTOMER')")
     public ApiResponse<AddressBookEntryResponse> updateMine(
             @AuthenticationPrincipal CustomerPrincipal principal,
-            @PathVariable Long addressId,
+            @PathVariable("addressId") Long addressId,
             @Valid @RequestBody SaveAddressBookEntryRequest request
     ) {
         return ApiResponse.ok(addressBookService.updateMine(principal, addressId, request), "Address updated");
@@ -65,7 +65,7 @@ public class AddressBookController {
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<ApiResponse<Void>> deleteMine(
             @AuthenticationPrincipal CustomerPrincipal principal,
-            @PathVariable Long addressId
+            @PathVariable("addressId") Long addressId
     ) {
         addressBookService.deleteMine(principal, addressId);
         return ResponseEntity.ok(ApiResponse.ok(null, "Address deleted"));

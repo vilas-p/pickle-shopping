@@ -24,7 +24,7 @@ public class TrackingController {
     private final ShipmentEventRepository shipmentEventRepository;
 
     @GetMapping("/{orderNumber}")
-    public ApiResponse<TrackingResponse> track(@PathVariable String orderNumber) {
+        public ApiResponse<TrackingResponse> track(@PathVariable("orderNumber") String orderNumber) {
         Order order = orderRepository.findByOrderNumber(orderNumber)
                 .orElseThrow(() -> new EntityNotFoundException("Order not found: " + orderNumber));
 

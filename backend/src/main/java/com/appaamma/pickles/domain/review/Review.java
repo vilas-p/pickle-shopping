@@ -1,14 +1,17 @@
 package com.appaamma.pickles.domain.review;
 
 import com.appaamma.pickles.common.BaseEntity;
+import com.appaamma.pickles.domain.customer.Customer;
 import com.appaamma.pickles.domain.product.Product;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "reviews", indexes = {
+@Table(name = "reviews",
+    uniqueConstraints = @UniqueConstraint(name = "uk_reviews_customer_product", columnNames = {"customer_id", "product_id"}),
+    indexes = {
         @Index(name = "idx_reviews_product_approved", columnList = "product_id, approved")
-})
+    })
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,7 +25,11 @@ public class Review extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
-    private Product product; // null = site-wide review
+    private Product product;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
 
     @Column(nullable = false, length = 100)
     private String authorName;

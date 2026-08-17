@@ -23,6 +23,7 @@ extra["lombokMapstructBindingVersion"] = "0.2.0"
 extra["springdocVersion"] = "2.6.0"
 extra["jjwtVersion"] = "0.12.6"
 extra["razorpayVersion"] = "1.4.6"
+extra["awsSdkVersion"] = "2.28.29"
 
 dependencies {
     // Spring Boot starters
@@ -59,6 +60,10 @@ dependencies {
     // Payment gateway
     implementation("com.razorpay:razorpay-java:${property("razorpayVersion")}")
 
+    // AWS S3 storage
+    implementation(platform("software.amazon.awssdk:bom:${property("awsSdkVersion")}"))
+    implementation("software.amazon.awssdk:s3")
+
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
@@ -68,6 +73,7 @@ dependencies {
 tasks.withType<JavaCompile>().configureEach {
     options.compilerArgs.addAll(
         listOf(
+                "-parameters",
             "-Amapstruct.defaultComponentModel=spring",
             "-Amapstruct.unmappedTargetPolicy=IGNORE"
         )

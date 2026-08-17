@@ -9,8 +9,9 @@ import com.appaamma.pickles.api.v1.notification.event.PaymentSuccessEvent;
 import com.appaamma.pickles.api.v1.payment.dto.CancelPaymentOrderRequest;
 import com.appaamma.pickles.api.v1.payment.dto.PaymentOrderResponse;
 import com.appaamma.pickles.api.v1.payment.dto.VerifyPaymentRequest;
-import com.appaamma.pickles.config.RazorpayProperties;
+import com.appaamma.pickles.config.PaymentProperties;
 import com.appaamma.pickles.domain.audit.AuditLogService;
+import com.appaamma.pickles.domain.credential.CredService;
 import com.appaamma.pickles.domain.inventory.InventoryReservationService;
 import com.appaamma.pickles.domain.order.*;
 import com.appaamma.pickles.exception.BadRequestException;
@@ -47,43 +48,46 @@ public class PaymentService {
     private static final String GATEWAY_STATUS_AUTHORIZED = "authorized";
     private static final String GATEWAY_STATUS_CAPTURED = "captured";
     private static final String GATEWAY_STATUS_FAILED = "failed";
+        private static final String PAYMENT_CATEGORY = "PAYMENT";
     private static final String PAYMENT_UNAVAILABLE_MESSAGE =
             "Online payments are temporarily unavailable. Please try again later or use cash on delivery.";
 
     private final RazorpayClient razorpayClient;
-    private final RazorpayProperties razorpayProperties;
+    private final PaymentProperties paymentProperties;
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
     private final PaymentAttemptRepository paymentAttemptRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final InventoryReservationService inventoryReservationService;
+    private final CredService credService;
     private final OrderService orderService;
     private final OrderNumberGenerator orderNumberGenerator;
     private final ObjectMapper objectMapper;
     private final AuditLogService auditLogService;
 
-    public PaymentService(RazorpayProperties razorpayProperties,
-                          OrderRepository orderRepository,
+    public PaymentService(OrderRepository orderRepository,
                           PaymentRepository paymentRepository,
                           PaymentAttemptRepository paymentAttemptRepository,
                           ApplicationEventPublisher applicationEventPublisher,
                           InventoryReservationService inventoryReservationService,
+                          CredService credService,
                           OrderService orderService,
                           OrderNumberGenerator orderNumberGenerator,
                           ObjectMapper objectMapper,
                           AuditLogService auditLogService) {
-        this.razorpayProperties = razorpayProperties;
         this.orderRepository = orderRepository;
         this.paymentRepository = paymentRepository;
         this.paymentAttemptRepository = paymentAttemptRepository;
         this.applicationEventPublisher = applicationEventPublisher;
         this.inventoryReservationService = inventoryReservationService;
+        this.credService = credService;
         this.orderService = orderService;
         this.orderNumberGenerator = orderNumberGenerator;
         this.objectMapper = objectMapper;
         this.auditLogService = auditLogService;
+        this.paymentProperties = resolvePaymentCredentials();
         try {
-            this.razorpayClient = new RazorpayClient(razorpayProperties.keyId(), razorpayProperties.keySecret());
+            this.razorpayClient = new RazorpayClient(paymentProperties.getKeyId(), paymentProperties.getKeySecret());
         } catch (RazorpayException e) {
             throw new IllegalStateException("Failed to initialise Razorpay client", e);
         }
@@ -134,7 +138,7 @@ public class PaymentService {
             log.error(
                     "Razorpay order creation failed for provisional order {}: keyId={} amountPaise={} reason={}",
                     orderNumber,
-                    maskKeyId(razorpayProperties.keyId()),
+                        maskKeyId(paymentProperties.getKeyId()),
                     amountInPaise,
                     e.getMessage(),
                     e
@@ -144,11 +148,11 @@ public class PaymentService {
     }
 
     private void assertGatewayConfigured() {
-        if (looksLikePlaceholderCredential(razorpayProperties.keyId())
-                || looksLikePlaceholderCredential(razorpayProperties.keySecret())) {
+        if (looksLikePlaceholderCredential(paymentProperties.getKeyId())
+            || looksLikePlaceholderCredential(paymentProperties.getKeySecret())) {
             log.error(
                     "Razorpay payment request rejected because gateway credentials are not configured: keyId={}",
-                    maskKeyId(razorpayProperties.keyId())
+                maskKeyId(paymentProperties.getKeyId())
             );
             throw new BadRequestException(PAYMENT_UNAVAILABLE_MESSAGE);
         }
@@ -207,7 +211,7 @@ public class PaymentService {
             attributes.put("razorpay_payment_id", req.razorpayPaymentId());
             attributes.put("razorpay_signature", req.razorpaySignature());
 
-            boolean valid = Utils.verifyPaymentSignature(attributes, razorpayProperties.keySecret());
+            boolean valid = Utils.verifyPaymentSignature(attributes, paymentProperties.getKeySecret());
             if (!valid) {
                 markAttemptFailed(attempt, "signature_mismatch");
                 throw new BadRequestException("Payment verification failed — signature mismatch");
@@ -468,7 +472,7 @@ public class PaymentService {
     }
 
     private void verifyWebhookSignature(String payload, String signature) {
-        String expected = hmacSha256(payload, razorpayProperties.webhookSecret());
+        String expected = hmacSha256(payload, paymentProperties.getWebhookSecret());
         if (!MessageDigest.isEqual(expected.getBytes(StandardCharsets.UTF_8), signature.getBytes(StandardCharsets.UTF_8))) {
             throw new BadRequestException("Invalid Razorpay webhook signature");
         }
@@ -532,11 +536,31 @@ public class PaymentService {
                 attempt.getRazorpayOrderId(),
                 attempt.getAmount(),
                 attempt.getCurrency(),
-                razorpayProperties.keyId(),
+                paymentProperties.getKeyId(),
                 attempt.getOrderNumber(),
                 attempt.getCustomerName(),
                 attempt.getCustomerEmail(),
                 attempt.getCustomerPhone()
+        );
+    }
+
+    private PaymentProperties resolvePaymentCredentials() {
+        Map<String, String> entries = credService.getActiveCredentialEntriesByCategory(PAYMENT_CATEGORY);
+
+        String keyId = requireCredential(entries, "key_id");
+        String keySecret = requireCredential(entries, "key_secret");
+        String webhookSecret = requireCredential(entries, "webhook_secret");
+
+        return new PaymentProperties(keyId, keySecret, webhookSecret);
+    }
+
+    private String requireCredential(Map<String, String> entries, String key) {
+        String value = entries.get(key);
+        if (value != null && !value.isBlank()) {
+            return value;
+        }
+        throw new IllegalStateException(
+                "Missing Razorpay credential in database for provider " + PAYMENT_CATEGORY + ": " + key
         );
     }
 

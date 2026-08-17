@@ -1,5 +1,6 @@
 package com.appaamma.pickles.api.v1.product.dto;
 
+import com.appaamma.pickles.domain.product.ProductMediaType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 
@@ -20,12 +21,24 @@ public record ProductRequest(
         @NotNull Long categoryId,
         boolean active,
         boolean featured,
-        @Valid List<ProductImageRequest> images
+        @Valid List<ProductImageRequest> images,
+        @Valid List<ProductVariantRequest> variants
 ) {
     public record ProductImageRequest(
             @NotBlank @Size(max = 500) String url,
             @Size(max = 200) String altText,
             Integer displayOrder,
-            boolean primary
+            boolean primary,
+            ProductMediaType mediaType
+    ) {}
+
+    public record ProductVariantRequest(
+            Long id,
+            @NotBlank @Size(max = 50) String weight,
+            @Size(max = 80) String sku,
+            @NotNull @DecimalMin(value = "0.0", inclusive = false) BigDecimal price,
+            @DecimalMin(value = "0.0", inclusive = false) BigDecimal compareAtPrice,
+            Integer displayOrder,
+            boolean active
     ) {}
 }

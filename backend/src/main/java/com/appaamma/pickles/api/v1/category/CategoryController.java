@@ -37,7 +37,7 @@ public class CategoryController {
 
     @Operation(summary = "Get a category by slug")
     @GetMapping("/slug/{slug}")
-    public ApiResponse<CategoryResponse> bySlug(@PathVariable String slug) {
+    public ApiResponse<CategoryResponse> bySlug(@PathVariable("slug") String slug) {
         return ApiResponse.ok(categoryService.getBySlug(slug));
     }
 
@@ -51,14 +51,14 @@ public class CategoryController {
     @Operation(summary = "[Admin] Update a category")
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<CategoryResponse> update(@PathVariable Long id, @Valid @RequestBody CategoryRequest request) {
+    public ApiResponse<CategoryResponse> update(@PathVariable("id") Long id, @Valid @RequestBody CategoryRequest request) {
         return ApiResponse.ok(categoryService.update(id, request), "Updated");
     }
 
     @Operation(summary = "[Admin] Delete a category")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<Void> delete(@PathVariable Long id) {
+    public ApiResponse<Void> delete(@PathVariable("id") Long id) {
         categoryService.delete(id);
         return ApiResponse.ok(null, "Deleted");
     }

@@ -24,45 +24,24 @@ public record NotificationProperties(
     public NotificationProperties {
         retryBackoff = retryBackoff == null ? Duration.ofMinutes(5) : retryBackoff;
         retryScanInterval = retryScanInterval == null ? Duration.ofMinutes(1) : retryScanInterval;
-                sms = sms == null ? new Sms(SmsProviderType.MOCK, null, null, null, null, null, null, null) : sms;
-                whatsapp = whatsapp == null ? new WhatsApp(WhatsAppProviderType.MOCK, null, null, null, null, null, null, null) : whatsapp;
-                email = email == null ? new Email(EmailProviderType.MOCK, null, null, null, null, null, null, null, null) : email;
+        sms = sms == null ? new Sms(SmsProviderType.MOCK) : sms;
+        whatsapp = whatsapp == null ? new WhatsApp(WhatsAppProviderType.MOCK, null) : whatsapp;
+        email = email == null ? new Email(EmailProviderType.MOCK) : email;
     }
 
     public record Sms(
-            SmsProviderType provider,
-            String msg91BaseUrl,
-            String msg91AuthKey,
-            String msg91SenderId,
-            String twilioBaseUrl,
-            String twilioAccountSid,
-            String twilioAuthToken,
-            String twilioFromNumber
+            SmsProviderType provider
     ) {
     }
 
     public record WhatsApp(
             WhatsAppProviderType provider,
-            String baseUrl,
-            String accessToken,
-            String phoneNumberId,
-            String senderName,
-            String msg91BaseUrl,
-            String msg91AuthKey,
-            String msg91IntegratedNumber
+            String baseUrl
     ) {
     }
 
     public record Email(
-            EmailProviderType provider,
-            String resendBaseUrl,
-            String resendApiKey,
-            String resendFromAddress,
-            String sesEndpointUrl,
-            String sesAccessKey,
-            String sesSecretKey,
-            String sesRegion,
-            String sesFromAddress
+            EmailProviderType provider
     ) {
     }
 }
