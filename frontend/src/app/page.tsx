@@ -19,14 +19,15 @@ export default async function HomePage() {
     ]);
 
   const featured = featuredResult.status === "fulfilled" ? featuredResult.value : [];
+  
   const latestReviews =
     latestReviewsResult.status === "fulfilled" ? latestReviewsResult.value : [];
   const heroMedia = heroMediaResult.status === "fulfilled" ? heroMediaResult.value : [];
+  console.log("heroMedia", heroMedia);
 
-  const heroImage = heroMedia.find((m) => m.altText?.includes("hero") || m.category === "HERO")?.url
-    ?? "/images/hero-pickle-jar.png";
-  const storyImage = heroMedia.find((m) => m.altText?.includes("story"))?.url
-    ?? "/images/story-grandmother.png";
+  const heroImage = heroMedia.find((m) => m.originalFilename?.toLowerCase().includes("hero"))?.url;
+
+  const storyImage = heroMedia.find((m) => m.originalFilename?.toLowerCase().includes("story"))?.url;
 
   return (
     <>

@@ -27,9 +27,10 @@ const beliefPoints = [
 
 export default async function AboutPage() {
   const aboutMedia = await publicMediaApi.getSiteMedia("ABOUT").catch(() => []);
+  console.log("aboutMedia", aboutMedia);
 
-  const img = (fallback: string) =>
-    aboutMedia.find((m) => m.url.includes(fallback.replace("/images/about/", "").replace(".png", "")))?.url ?? fallback;
+  // const img = (fallback: string) =>
+  //   aboutMedia.find((m) => m.url.includes(fallback.replace("/images/about/", "").replace(".png", "")))?.url ?? fallback;
   return (
     <>
       <section className="relative overflow-hidden bg-spice-wash text-white">
@@ -54,7 +55,7 @@ export default async function AboutPage() {
 
         <div className="relative mx-auto -mt-6 aspect-[16/9] w-full max-w-5xl overflow-hidden rounded-3xl bg-brand-earth-800 shadow-warm ring-1 ring-white/10">
           <Image
-            src={img("/images/about/01-kitchen-dawn.png")}
+            src={aboutMedia.find((m) => m.originalFilename?.toLowerCase().includes("kitchen-dawn"))?.url}
             alt="Village kitchen near Bidar at the start of the day"
             fill
             priority
@@ -104,7 +105,7 @@ export default async function AboutPage() {
 
           <figure className="relative aspect-[4/5] overflow-hidden rounded-3xl shadow-warm ring-1 ring-brand-cream-200">
             <Image
-              src={img("/images/about/03-village-lane-dawn.png")}
+              src= {aboutMedia.find((m) => m.originalFilename?.toLowerCase().includes("village-lane"))?.url}
               alt="A quiet village lane near Bidar in the early morning"
               fill
               sizes="(min-width: 768px) 45vw, 100vw"
@@ -118,7 +119,7 @@ export default async function AboutPage() {
         <div className="container-page grid items-center gap-12 md:grid-cols-2">
           <figure className="relative order-last aspect-[4/5] overflow-hidden rounded-3xl shadow-warm ring-1 ring-brand-cream-200 md:order-first">
             <Image
-              src={img("/images/about/02-amma-cutting-mango.png")}
+              src={aboutMedia.find((m) => m.originalFilename?.toLowerCase().includes("amma-cutting-mango"))?.url}
               alt="Hands cutting mango for a small batch of pickle"
               fill
               sizes="(min-width: 768px) 45vw, 100vw"
@@ -173,7 +174,7 @@ export default async function AboutPage() {
 
           <figure className="relative aspect-[4/5] overflow-hidden rounded-3xl shadow-warm ring-1 ring-brand-cream-200">
             <Image
-              src={img("/images/about/05-kitchen-clay-jars.png")}
+              src={aboutMedia.find((m) => m.originalFilename?.toLowerCase().includes("kitchen-clay-jars"))?.url}
               alt="Clay jars and vessels in a traditional family kitchen"
               fill
               sizes="(min-width: 768px) 45vw, 100vw"
@@ -241,7 +242,7 @@ export default async function AboutPage() {
 
           <figure className="relative aspect-[4/5] overflow-hidden rounded-3xl shadow-warm ring-1 ring-brand-cream-200">
             <Image
-              src={img("/images/about/04-jar-sealed-dusk.png")}
+              src={aboutMedia.find((m) => m.originalFilename?.toLowerCase().includes("jar-sealed"))?.url}
               alt="A jar sealed by hand at the end of the day"
               fill
               sizes="(min-width: 1024px) 32vw, 100vw"

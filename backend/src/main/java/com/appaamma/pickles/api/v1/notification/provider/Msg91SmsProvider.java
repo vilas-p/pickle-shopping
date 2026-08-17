@@ -1,6 +1,7 @@
 package com.appaamma.pickles.api.v1.notification.provider;
 
 import com.appaamma.pickles.config.NotificationProperties;
+import com.appaamma.pickles.domain.credential.CredService;
 import com.appaamma.pickles.domain.notification.SmsProviderType;
 import com.appaamma.pickles.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class Msg91SmsProvider implements SmsProvider {
 
+    private static final String PROVIDER_CODE = "MSG91";
+
     private final NotificationProperties properties;
+    private final CredService credService;
     private final RestClient.Builder restClientBuilder;
 
     @Override
@@ -25,18 +29,19 @@ public class Msg91SmsProvider implements SmsProvider {
     @Override
     public NotificationProviderResponse send(String phoneNumber, String message) {
         NotificationProperties.Sms sms = properties.sms();
-        require(sms.msg91BaseUrl(), "app.notification.sms.msg91-base-url");
-        require(sms.msg91AuthKey(), "app.notification.sms.msg91-auth-key");
+        String msg91BaseUrl = requireCredential("sms_base_url");
+        String msg91AuthKey = requireCredential("auth_key");
+        String msg91SenderId = optionalCredential("sender_id");
 
         String response = restClientBuilder.build()
                 .post()
-                .uri(sms.msg91BaseUrl())
-                .header("authkey", sms.msg91AuthKey())
+            .uri(msg91BaseUrl)
+            .header("authkey", msg91AuthKey)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Map.of(
                         "mobile", phoneNumber,
                         "message", message,
-                        "sender", blankToDefault(sms.msg91SenderId(), "APPAAM")
+                "sender", blankToDefault(msg91SenderId, "APPAAM")
                 ))
                 .retrieve()
                 .body(String.class);
@@ -52,5 +57,17 @@ public class Msg91SmsProvider implements SmsProvider {
 
     private String blankToDefault(String value, String fallback) {
         return (value == null || value.isBlank()) ? fallback : value;
+    }
+
+    private String requireCredential(String key) {
+        String value = credService.getActiveCredentialEntriesByProviderCode(PROVIDER_CODE).get(key);
+        if (value == null || value.isBlank()) {
+            throw new BadRequestException("Missing notification provider credential: " + PROVIDER_CODE + "." + key);
+        }
+        return value;
+    }
+
+    private String optionalCredential(String key) {
+        return credService.getActiveCredentialEntriesByProviderCode(PROVIDER_CODE).get(key);
     }
 }

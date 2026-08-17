@@ -4,6 +4,7 @@ import { CartIcon } from "@/features/cart/components/CartIcon";
 import { AccountButton } from "@/features/auth/components/AccountButton";
 import { MobileNav } from "./MobileNav";
 import { ROUTES } from "@/shared/constants/routes";
+import { publicMediaApi } from "@/features/admin/media/api";
 
 const NAV = [
   { href: ROUTES.home, label: "Home" },
@@ -15,14 +16,19 @@ const NAV = [
   { href: ROUTES.contact, label: "Contact" },
 ] as const;
 
-export function Header() {
+const FALLBACK_LOGO_SRC = "/images/products/logo.png";
+
+export async function Header() {
+  const logoMedia = await publicMediaApi.getSiteMedia("LOGO").catch(() => []);
+  const logoSrc = logoMedia[0]?.url ?? FALLBACK_LOGO_SRC;
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-brand-cream-200 bg-brand-cream-50/85 backdrop-blur supports-[backdrop-filter]:bg-brand-cream-50/70">
       <div className="container-page flex h-16 items-center justify-between gap-4">
         <Link href={ROUTES.home} className="flex items-center gap-2">
           <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-white shadow-warm">
             <Image
-              src="/images/products/logo.png"
+              src={logoSrc}
               alt="Appa & Amma's Pickles Logo"
               width={40}
               height={40}

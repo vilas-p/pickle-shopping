@@ -2,6 +2,15 @@ import { http } from "@/shared/lib/http";
 import type { Product, Category, ProductImage } from "@/features/product/types";
 import type { PageResponse } from "@/shared/types/api";
 
+export interface ProductVariantFormData {
+  id?: number;
+  weight: string;
+  sku?: string;
+  price: number;
+  compareAtPrice?: number;
+  active: boolean;
+}
+
 export interface ProductFormData {
   name: string;
   slug: string;
@@ -15,6 +24,7 @@ export interface ProductFormData {
   categoryId: number;
   active: boolean;
   featured: boolean;
+  variants?: ProductVariantFormData[];
 }
 
 interface ImagePayload {
@@ -35,6 +45,18 @@ function toImagePayload(images: ProductImage[]): ImagePayload[] {
   }));
 }
 
+function toVariantPayload(variants: ProductVariantFormData[] | undefined) {
+  return variants?.map((v, index) => ({
+    id: v.id,
+    weight: v.weight,
+    sku: v.sku,
+    price: v.price,
+    compareAtPrice: v.compareAtPrice,
+    displayOrder: index,
+    active: v.active,
+  }));
+}
+
 export const adminProductsApi = {
   list: (page = 0, size = 100) =>
     http<PageResponse<Product>>(`/products/admin?page=${page}&size=${size}`, {
@@ -48,7 +70,7 @@ export const adminProductsApi = {
   create: (data: ProductFormData) =>
     http<Product>("/products", {
       method: "POST",
-      body: JSON.stringify({ ...data, images: [] }),
+      body: JSON.stringify({ ...data, images: [], variants: toVariantPayload(data.variants) }),
       auth: "admin",
       cache: "no-store",
     }),
@@ -57,7 +79,11 @@ export const adminProductsApi = {
   update: (id: number, data: ProductFormData, existingImages: ProductImage[] = []) =>
     http<Product>(`/products/${id}`, {
       method: "PUT",
-      body: JSON.stringify({ ...data, images: toImagePayload(existingImages) }),
+      body: JSON.stringify({
+        ...data,
+        images: toImagePayload(existingImages),
+        variants: toVariantPayload(data.variants),
+      }),
       auth: "admin",
       cache: "no-store",
     }),

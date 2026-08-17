@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
         CorsProperties.class,
         NotificationProperties.class,
         OtpProperties.class,
-        RazorpayProperties.class,
         StoreLocationProperties.class,
         ShiprocketProperties.class,
         S3StorageProperties.class
