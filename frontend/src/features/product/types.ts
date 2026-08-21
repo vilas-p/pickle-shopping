@@ -6,12 +6,15 @@ export interface Category {
   active: boolean;
 }
 
+export type ProductMediaType = "IMAGE" | "VIDEO";
+
 export interface ProductImage {
   id: number;
   url: string;
   altText?: string;
   displayOrder: number;
   primary: boolean;
+  mediaType: ProductMediaType;
 }
 
 export interface ProductVariant {

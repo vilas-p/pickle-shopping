@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-06-16T22:46:21+0530",
-    comments = "version: 1.6.3, compiler: Eclipse JDT (IDE) 3.46.0.v20260407-0427, environment: Java 21.0.10 (Eclipse Adoptium)"
+    date = "2026-08-12T21:28:50+0530",
+    comments = "version: 1.6.3, compiler: Eclipse JDT (IDE) 3.46.100.v20260624-0231, environment: Java 21.0.11 (Eclipse Adoptium)"
 )
 @Component
 public class ContactMapperImpl implements ContactMapper {
@@ -23,11 +23,11 @@ public class ContactMapperImpl implements ContactMapper {
 
         Contact.ContactBuilder contact = Contact.builder();
 
-        contact.fullName( request.fullName() );
         contact.email( request.email() );
+        contact.fullName( request.fullName() );
+        contact.message( request.message() );
         contact.phone( request.phone() );
         contact.subject( request.subject() );
-        contact.message( request.message() );
 
         contact.handled( false );
 

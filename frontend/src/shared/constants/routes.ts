@@ -3,6 +3,8 @@ export const ROUTES = {
   adminLogin: "/admin/login",
   adminDashboard: "/admin/dashboard",
   adminContacts: "/admin/contacts",
+  adminMedia: "/admin/media",
+  adminProducts: "/admin/products",
   adminOrders: "/admin/orders",
   adminShipments: "/admin/shipments",
   products: "/products",

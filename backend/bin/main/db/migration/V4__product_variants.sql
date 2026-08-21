@@ -25,9 +25,17 @@ ALTER TABLE inventory
     ADD COLUMN variant_id BIGINT NULL AFTER product_id,
     ADD CONSTRAINT fk_inventory_variant FOREIGN KEY (variant_id) REFERENCES product_variants(id) ON DELETE CASCADE;
 
--- Re-add a unique covering both (product_id, variant_id) — NULL variant_id still supported
+-- Drop the FK that depends on the UNIQUE index, then drop the index, then re-add FK
 ALTER TABLE inventory
-    ADD UNIQUE KEY uq_inventory_product_variant (product_id, variant_id);
+    DROP FOREIGN KEY fk_inventory_product;
+
+ALTER TABLE inventory
+    DROP INDEX product_id;
+
+-- Add a composite unique covering (product_id, variant_id)
+ALTER TABLE inventory
+    ADD UNIQUE KEY uq_inventory_product_variant (product_id, variant_id),
+    ADD CONSTRAINT fk_inventory_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE;
 
 -- ===== Extend order_items with optional variant FK =====
 ALTER TABLE order_items

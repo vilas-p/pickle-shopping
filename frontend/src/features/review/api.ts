@@ -20,5 +20,6 @@ export const reviewsApi = {
       method: "POST",
       body: JSON.stringify(payload),
       cache: "no-store",
+      auth: true,
     }),
 };

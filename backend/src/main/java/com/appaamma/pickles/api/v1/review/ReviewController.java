@@ -13,7 +13,9 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import com.appaamma.pickles.security.CustomerPrincipal;
 
 import java.util.List;
 
@@ -25,11 +27,15 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
-    @Operation(summary = "Submit a customer review")
+        @Operation(summary = "Submit a review for a purchased product")
     @PostMapping
-    public ResponseEntity<ApiResponse<ReviewResponse>> create(@Valid @RequestBody ReviewRequest request) {
+        @PreAuthorize("hasRole('CUSTOMER')")
+        public ResponseEntity<ApiResponse<ReviewResponse>> create(
+            @AuthenticationPrincipal CustomerPrincipal principal,
+            @Valid @RequestBody ReviewRequest request
+        ) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.ok(reviewService.create(request),
+            .body(ApiResponse.ok(reviewService.create(principal, request),
                         "Thank you! Your review is now live."));
     }
 
@@ -48,7 +54,7 @@ public class ReviewController {
     @Operation(summary = "Approved reviews for a product")
     @GetMapping("/product/{productId}")
     public ApiResponse<PageResponse<ReviewResponse>> forProduct(
-            @PathVariable Long productId, @PageableDefault(size = 10) Pageable pageable
+            @PathVariable("productId") Long productId, @PageableDefault(size = 10) Pageable pageable
     ) {
         return ApiResponse.ok(reviewService.listForProduct(productId, pageable));
     }
@@ -57,7 +63,7 @@ public class ReviewController {
     @GetMapping("/admin")
     @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
     public ApiResponse<PageResponse<ReviewResponse>> listAdmin(
-            @RequestParam(required = false) Boolean approved,
+            @RequestParam(value = "approved", required = false) Boolean approved,
             @PageableDefault(size = 20) Pageable pageable
     ) {
         return ApiResponse.ok(reviewService.listAdmin(approved, pageable));
@@ -66,14 +72,14 @@ public class ReviewController {
     @Operation(summary = "[Admin] Approve / unapprove a review")
     @PatchMapping("/{id}/approve")
     @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
-    public ApiResponse<ReviewResponse> approve(@PathVariable Long id, @RequestParam(defaultValue = "true") boolean approved) {
+    public ApiResponse<ReviewResponse> approve(@PathVariable("id") Long id, @RequestParam(value = "approved", defaultValue = "true") boolean approved) {
         return ApiResponse.ok(reviewService.approve(id, approved), "Updated");
     }
 
     @Operation(summary = "[Admin] Delete a review")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<Void> delete(@PathVariable Long id) {
+    public ApiResponse<Void> delete(@PathVariable("id") Long id) {
         reviewService.delete(id);
         return ApiResponse.ok(null, "Deleted");
     }

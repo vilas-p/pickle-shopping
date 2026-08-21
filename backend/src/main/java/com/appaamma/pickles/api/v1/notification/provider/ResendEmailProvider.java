@@ -1,6 +1,7 @@
 package com.appaamma.pickles.api.v1.notification.provider;
 
 import com.appaamma.pickles.config.NotificationProperties;
+import com.appaamma.pickles.domain.credential.CredService;
 import com.appaamma.pickles.domain.notification.EmailProviderType;
 import com.appaamma.pickles.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ResendEmailProvider implements EmailProvider {
 
+    private static final String PROVIDER_CODE = "RESEND";
+
     private final NotificationProperties properties;
+    private final CredService credService;
     private final RestClient.Builder restClientBuilder;
 
     @Override
@@ -24,18 +28,17 @@ public class ResendEmailProvider implements EmailProvider {
 
     @Override
     public NotificationProviderResponse send(String emailAddress, String subject, String body) {
-        NotificationProperties.Email email = properties.email();
-        require(email.resendBaseUrl(), "app.notification.email.resend-base-url");
-        require(email.resendApiKey(), "app.notification.email.resend-api-key");
-        require(email.resendFromAddress(), "app.notification.email.resend-from-address");
+        String resendBaseUrl = requireCredential("base_url");
+        String resendApiKey = requireCredential("api_key");
+        String resendFromAddress = requireCredential("from_address");
 
         String response = restClientBuilder.build()
                 .post()
-                .uri(email.resendBaseUrl())
-                .header("Authorization", "Bearer " + email.resendApiKey())
+            .uri(resendBaseUrl)
+            .header("Authorization", "Bearer " + resendApiKey)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Map.of(
-                        "from", email.resendFromAddress(),
+                "from", resendFromAddress,
                         "to", emailAddress,
                         "subject", subject,
                         "text", body
@@ -50,5 +53,13 @@ public class ResendEmailProvider implements EmailProvider {
         if (value == null || value.isBlank()) {
             throw new BadRequestException("Missing notification provider config: " + key);
         }
+    }
+
+    private String requireCredential(String key) {
+        String value = credService.getActiveCredentialEntriesByProviderCode(PROVIDER_CODE).get(key);
+        if (value == null || value.isBlank()) {
+            throw new BadRequestException("Missing notification provider credential: " + PROVIDER_CODE + "." + key);
+        }
+        return value;
     }
 }

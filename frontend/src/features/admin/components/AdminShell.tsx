@@ -7,6 +7,8 @@ import { selectAdminUser, useAdminAuthStore } from "@/features/admin/auth/store"
 
 const navItems = [
   { href: ROUTES.adminDashboard, label: "Dashboard" },
+  { href: ROUTES.adminProducts, label: "Products" },
+  { href: ROUTES.adminMedia, label: "Media" },
   { href: ROUTES.adminContacts, label: "Contacts" },
   { href: ROUTES.adminOrders, label: "Orders" },
   { href: ROUTES.adminShipments, label: "Shipments" },
@@ -36,7 +38,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={active ? "btn-primary" : "btn-secondary !bg-white/10 !text-white hover:!bg-white/20"}
+                  className={active ? "btn-primary !text-white" : "btn-secondary !bg-white/10 !text-black hover:!bg-white/20"}
                 >
                   {item.label}
                 </Link>

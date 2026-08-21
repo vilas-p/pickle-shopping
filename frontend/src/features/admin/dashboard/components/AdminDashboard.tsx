@@ -201,6 +201,10 @@ export function AdminDashboard() {
                 <p className="font-semibold text-brand-earth-900">Review contacts</p>
                 <p className="mt-1 text-sm text-brand-earth-700/80">Read customer messages and mark follow-up as handled.</p>
               </Link>
+              <Link href={ROUTES.adminMedia} className="rounded-2xl border border-brand-cream-200 bg-white px-4 py-4 transition hover:border-brand-primary-300 hover:bg-brand-cream-50">
+                <p className="font-semibold text-brand-earth-900">Upload product media</p>
+                <p className="mt-1 text-sm text-brand-earth-700/80">Send product images and videos to S3 and copy the returned URLs.</p>
+              </Link>
               <Link href={ROUTES.products} className="rounded-2xl border border-brand-cream-200 bg-white px-4 py-4 transition hover:border-brand-primary-300 hover:bg-brand-cream-50">
                 <p className="font-semibold text-brand-earth-900">View storefront</p>
                 <p className="mt-1 text-sm text-brand-earth-700/80">Open the live product catalogue in a new view.</p>

@@ -23,7 +23,7 @@ public class CustomerController {
     @Operation(summary = "Search/list customers")
     @GetMapping
     public ApiResponse<PageResponse<CustomerResponse>> list(
-            @RequestParam(required = false) String q,
+            @RequestParam(value = "q", required = false) String q,
             @PageableDefault(size = 20, sort = "createdAt") Pageable pageable
     ) {
         return ApiResponse.ok(customerService.search(q, pageable));
@@ -31,7 +31,7 @@ public class CustomerController {
 
     @Operation(summary = "Get customer by id")
     @GetMapping("/{id}")
-    public ApiResponse<CustomerResponse> byId(@PathVariable Long id) {
+    public ApiResponse<CustomerResponse> byId(@PathVariable("id") Long id) {
         return ApiResponse.ok(customerService.getById(id));
     }
 }

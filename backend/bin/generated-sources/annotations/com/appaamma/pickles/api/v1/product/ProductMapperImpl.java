@@ -5,6 +5,7 @@ import com.appaamma.pickles.api.v1.product.dto.ProductResponse;
 import com.appaamma.pickles.domain.product.Category;
 import com.appaamma.pickles.domain.product.Product;
 import com.appaamma.pickles.domain.product.ProductImage;
+import com.appaamma.pickles.domain.product.ProductMediaType;
 import com.appaamma.pickles.domain.product.ProductVariant;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -14,8 +15,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-06-16T22:53:56+0530",
-    comments = "version: 1.6.3, compiler: Eclipse JDT (IDE) 3.46.0.v20260407-0427, environment: Java 21.0.10 (Eclipse Adoptium)"
+    date = "2026-08-12T21:28:52+0530",
+    comments = "version: 1.6.3, compiler: Eclipse JDT (IDE) 3.46.100.v20260624-0231, environment: Java 21.0.11 (Eclipse Adoptium)"
 )
 @Component
 public class ProductMapperImpl implements ProductMapper {
@@ -88,14 +89,16 @@ public class ProductMapperImpl implements ProductMapper {
         String altText = null;
         Integer displayOrder = null;
         boolean primary = false;
+        ProductMediaType mediaType = null;
 
         id = image.getId();
         url = image.getUrl();
         altText = image.getAltText();
         displayOrder = image.getDisplayOrder();
         primary = image.isPrimary();
+        mediaType = image.getMediaType();
 
-        ProductImageResponse productImageResponse = new ProductImageResponse( id, url, altText, displayOrder, primary );
+        ProductImageResponse productImageResponse = new ProductImageResponse( id, url, altText, displayOrder, primary, mediaType );
 
         return productImageResponse;
     }

@@ -34,7 +34,7 @@ public class ContactController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
     public ApiResponse<PageResponse<ContactResponse>> list(
-            @RequestParam(required = false) Boolean handled,
+            @RequestParam(value = "handled", required = false) Boolean handled,
             @PageableDefault(size = 20, sort = "createdAt") Pageable pageable
     ) {
         return ApiResponse.ok(contactService.list(handled, pageable));
@@ -43,7 +43,7 @@ public class ContactController {
     @Operation(summary = "[Admin] Mark contact as handled/unhandled")
     @PatchMapping("/{id}/handled")
     @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
-    public ApiResponse<ContactResponse> markHandled(@PathVariable Long id, @RequestParam(defaultValue = "true") boolean handled) {
+    public ApiResponse<ContactResponse> markHandled(@PathVariable("id") Long id, @RequestParam(value = "handled", defaultValue = "true") boolean handled) {
         return ApiResponse.ok(contactService.markHandled(id, handled), "Updated");
     }
 }

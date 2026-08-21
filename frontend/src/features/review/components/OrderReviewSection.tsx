@@ -65,7 +65,6 @@ export function OrderReviewSection({ order }: Props) {
     const trimmedComment = draft.comment.trim();
     const payload: ReviewPayload = {
       productId,
-      authorName: order.customer.fullName,
       authorCity: order.shippingAddress.city || undefined,
       rating: draft.rating,
       title: fallbackTitle(productName, draft.rating),

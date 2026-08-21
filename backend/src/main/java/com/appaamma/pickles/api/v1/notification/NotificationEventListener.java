@@ -1,8 +1,6 @@
 package com.appaamma.pickles.api.v1.notification;
 
 import com.appaamma.pickles.api.v1.notification.event.*;
-import com.appaamma.pickles.config.OtpProperties;
-import com.appaamma.pickles.domain.otp.OtpIdentifierKind;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
@@ -17,7 +15,6 @@ public class NotificationEventListener {
 
     private final NotificationService notificationService;
     private final ApplicationEventPublisher applicationEventPublisher;
-    private final OtpProperties otpProperties;
 
     @EventListener
     public void onUserRegistered(UserRegisteredEvent event) {
@@ -26,25 +23,6 @@ public class NotificationEventListener {
                     "CustomerName", valueOrDefault(event.customerName(), "Customer")
             ));
         }
-    }
-
-    @EventListener
-    public void onLoginOtpRequested(LoginOtpRequestedEvent event) {
-        Map<String, Object> variables = new LinkedHashMap<>();
-        variables.put("CustomerName", valueOrDefault(event.customerName(), "Customer"));
-        variables.put("OTP", event.otp());
-        variables.put("ExpiryMinutes", event.expiryMinutes());
-
-        if (event.kind() == OtpIdentifierKind.PHONE) {
-            if (otpProperties.phoneChannel() == OtpProperties.PhoneChannel.WHATSAPP) {
-                notificationService.sendWhatsApp("LOGIN_OTP_WHATSAPP", event.recipient(), variables);
-            } else {
-                notificationService.sendSms("LOGIN_OTP_SMS", event.recipient(), variables);
-            }
-            return;
-        }
-
-        notificationService.sendEmail("LOGIN_OTP_EMAIL", event.recipient(), variables);
     }
 
     @EventListener

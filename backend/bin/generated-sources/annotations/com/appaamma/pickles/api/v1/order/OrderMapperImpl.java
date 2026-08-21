@@ -1,6 +1,7 @@
 package com.appaamma.pickles.api.v1.order;
 
 import com.appaamma.pickles.api.v1.order.dto.OrderResponse;
+import com.appaamma.pickles.api.v1.order.dto.PublicOrderResponse;
 import com.appaamma.pickles.domain.customer.Address;
 import com.appaamma.pickles.domain.customer.Customer;
 import com.appaamma.pickles.domain.order.Order;
@@ -19,8 +20,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-06-16T22:53:56+0530",
-    comments = "version: 1.6.3, compiler: Eclipse JDT (IDE) 3.46.0.v20260407-0427, environment: Java 21.0.10 (Eclipse Adoptium)"
+    date = "2026-08-12T21:28:51+0530",
+    comments = "version: 1.6.3, compiler: Eclipse JDT (IDE) 3.46.100.v20260624-0231, environment: Java 21.0.11 (Eclipse Adoptium)"
 )
 @Component
 public class OrderMapperImpl implements OrderMapper {
@@ -62,6 +63,37 @@ public class OrderMapperImpl implements OrderMapper {
         OrderResponse orderResponse = new OrderResponse( id, orderNumber, status, channel, paymentMethod, subtotal, shippingFee, total, notes, createdAt, customer, shippingAddress, items );
 
         return orderResponse;
+    }
+
+    @Override
+    public PublicOrderResponse toPublicResponse(Order order) {
+        if ( order == null ) {
+            return null;
+        }
+
+        String orderNumber = null;
+        OrderStatus status = null;
+        OrderChannel channel = null;
+        PaymentMethod paymentMethod = null;
+        BigDecimal subtotal = null;
+        BigDecimal shippingFee = null;
+        BigDecimal total = null;
+        Instant createdAt = null;
+        List<OrderResponse.OrderItemResponse> items = null;
+
+        orderNumber = order.getOrderNumber();
+        status = order.getStatus();
+        channel = order.getChannel();
+        paymentMethod = order.getPaymentMethod();
+        subtotal = order.getSubtotal();
+        shippingFee = order.getShippingFee();
+        total = order.getTotal();
+        createdAt = order.getCreatedAt();
+        items = orderItemListToOrderItemResponseList( order.getItems() );
+
+        PublicOrderResponse publicOrderResponse = new PublicOrderResponse( orderNumber, status, channel, paymentMethod, subtotal, shippingFee, total, createdAt, items );
+
+        return publicOrderResponse;
     }
 
     @Override

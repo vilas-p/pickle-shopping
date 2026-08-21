@@ -69,7 +69,8 @@ public class SecurityConfig {
                                 "/api/v1/products/slug/**",
                                 "/api/v1/categories", "/api/v1/categories/slug/**",
                                 "/api/v1/reviews", "/api/v1/reviews/latest",
-                                "/api/v1/reviews/product/**"
+                                "/api/v1/reviews/product/**",
+                                "/api/v1/media/banners", "/api/v1/media/site"
                         ).permitAll()
                         // Public writes
                         .requestMatchers(HttpMethod.POST,
@@ -82,7 +83,6 @@ public class SecurityConfig {
                                 "/api/v1/customer-auth/otp/resend",
                                 "/api/v1/customer-auth/otp/verify",
                                 "/api/v1/payments/webhook",
-                                "/api/v1/notifications/webhooks/msg91/whatsapp",
                                 "/api/v1/shipping/serviceability",
                                 "/api/v1/webhooks/shiprocket"
                         ).permitAll()

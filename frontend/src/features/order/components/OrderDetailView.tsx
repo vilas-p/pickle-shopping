@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ordersApi } from "@/features/order/api";
 import { OrderStatusBadge } from "@/features/order/components/OrderStatusBadge";
+import { OrderReviewSection } from "@/features/review/components/OrderReviewSection";
 import { formatPrice } from "@/shared/lib/format";
 import { ROUTES } from "@/shared/constants/routes";
 import type { Order } from "@/features/order/types";
@@ -192,6 +193,8 @@ export function OrderDetailView() {
           </address>
         </div>
       </div>
+
+      <OrderReviewSection order={order} />
     </div>
   );
 }
