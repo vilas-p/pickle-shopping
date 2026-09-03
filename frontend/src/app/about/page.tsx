@@ -27,10 +27,9 @@ const beliefPoints = [
 
 export default async function AboutPage() {
   const aboutMedia = await publicMediaApi.getSiteMedia("ABOUT").catch(() => []);
-  console.log("aboutMedia", aboutMedia);
+  const findMedia = (keyword: string) =>
+    aboutMedia.find((m) => m.originalFilename?.toLowerCase().includes(keyword))?.url;
 
-  // const img = (fallback: string) =>
-  //   aboutMedia.find((m) => m.url.includes(fallback.replace("/images/about/", "").replace(".png", "")))?.url ?? fallback;
   return (
     <>
       <section className="relative overflow-hidden bg-spice-wash text-white">
@@ -54,14 +53,16 @@ export default async function AboutPage() {
         </div>
 
         <div className="relative mx-auto -mt-6 aspect-[16/9] w-full max-w-5xl overflow-hidden rounded-3xl bg-brand-earth-800 shadow-warm ring-1 ring-white/10">
-          <Image
-            src={aboutMedia.find((m) => m.originalFilename?.toLowerCase().includes("kitchen-dawn"))?.url}
-            alt="Village kitchen near Bidar at the start of the day"
-            fill
-            priority
-            sizes="(min-width: 1024px) 60vw, 100vw"
-            className="object-cover"
-          />
+          {findMedia("kitchen-dawn") && (
+            <Image
+              src={findMedia("kitchen-dawn")!}
+              alt="Village kitchen near Bidar at the start of the day"
+              fill
+              priority
+              sizes="(min-width: 1024px) 60vw, 100vw"
+              className="object-cover"
+            />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-brand-earth-900/70 via-transparent to-transparent" />
           <div className="absolute bottom-6 left-6 right-6 sm:bottom-8 sm:left-10">
             <p className="font-script text-xl text-brand-secondary-200 sm:text-2xl">
@@ -104,13 +105,15 @@ export default async function AboutPage() {
           </div>
 
           <figure className="relative aspect-[4/5] overflow-hidden rounded-3xl shadow-warm ring-1 ring-brand-cream-200">
-            <Image
-              src= {aboutMedia.find((m) => m.originalFilename?.toLowerCase().includes("village-lane"))?.url}
-              alt="A quiet village lane near Bidar in the early morning"
-              fill
-              sizes="(min-width: 768px) 45vw, 100vw"
-              className="object-cover"
-            />
+            {findMedia("village-lane") && (
+              <Image
+                src={findMedia("village-lane")!}
+                alt="A quiet village lane near Bidar in the early morning"
+                fill
+                sizes="(min-width: 768px) 45vw, 100vw"
+                className="object-cover"
+              />
+            )}
           </figure>
         </div>
       </section>
@@ -118,13 +121,15 @@ export default async function AboutPage() {
       <section className="bg-brand-cream-100/60 py-20">
         <div className="container-page grid items-center gap-12 md:grid-cols-2">
           <figure className="relative order-last aspect-[4/5] overflow-hidden rounded-3xl shadow-warm ring-1 ring-brand-cream-200 md:order-first">
-            <Image
-              src={aboutMedia.find((m) => m.originalFilename?.toLowerCase().includes("amma-cutting-mango"))?.url}
-              alt="Hands cutting mango for a small batch of pickle"
-              fill
-              sizes="(min-width: 768px) 45vw, 100vw"
-              className="object-cover"
-            />
+            {findMedia("amma-cutting-mango") && (
+              <Image
+                src={findMedia("amma-cutting-mango")!}
+                alt="Hands cutting mango for a small batch of pickle"
+                fill
+                sizes="(min-width: 768px) 45vw, 100vw"
+                className="object-cover"
+              />
+            )}
           </figure>
 
           <div>
@@ -173,13 +178,15 @@ export default async function AboutPage() {
           </div>
 
           <figure className="relative aspect-[4/5] overflow-hidden rounded-3xl shadow-warm ring-1 ring-brand-cream-200">
-            <Image
-              src={aboutMedia.find((m) => m.originalFilename?.toLowerCase().includes("kitchen-clay-jars"))?.url}
-              alt="Clay jars and vessels in a traditional family kitchen"
-              fill
-              sizes="(min-width: 768px) 45vw, 100vw"
-              className="object-cover"
-            />
+            {findMedia("kitchen-clay-jars") && (
+              <Image
+                src={findMedia("kitchen-clay-jars")!}
+                alt="Clay jars and vessels in a traditional family kitchen"
+                fill
+                sizes="(min-width: 768px) 45vw, 100vw"
+                className="object-cover"
+              />
+            )}
           </figure>
         </div>
       </section>
@@ -241,13 +248,15 @@ export default async function AboutPage() {
           </div>
 
           <figure className="relative aspect-[4/5] overflow-hidden rounded-3xl shadow-warm ring-1 ring-brand-cream-200">
-            <Image
-              src={aboutMedia.find((m) => m.originalFilename?.toLowerCase().includes("jar-sealed"))?.url}
-              alt="A jar sealed by hand at the end of the day"
-              fill
-              sizes="(min-width: 1024px) 32vw, 100vw"
-              className="object-cover"
-            />
+            {findMedia("jar-sealed") && (
+              <Image
+                src={findMedia("jar-sealed")!}
+                alt="A jar sealed by hand at the end of the day"
+                fill
+                sizes="(min-width: 1024px) 32vw, 100vw"
+                className="object-cover"
+              />
+            )}
           </figure>
         </div>
       </section>

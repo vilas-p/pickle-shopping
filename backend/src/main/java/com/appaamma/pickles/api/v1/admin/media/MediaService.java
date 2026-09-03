@@ -100,6 +100,53 @@ public class MediaService {
     }
 
     @Transactional
+    public MediaResponse register(MediaRegisterRequest request, Long uploadedBy) {
+        if (mediaRepository.existsByS3Key(request.s3Key())) {
+            throw new IllegalArgumentException("Media with S3 key already registered: " + request.s3Key());
+        }
+        if (!s3StorageService.exists(request.s3Key())) {
+            throw new ResourceNotFoundException("S3 object", "key", request.s3Key());
+        }
+
+        String url = s3StorageService.getUrl(request.s3Key());
+        String filename = request.s3Key().substring(request.s3Key().lastIndexOf('/') + 1);
+        String extension = filename.contains(".") ? filename.substring(filename.lastIndexOf('.') + 1) : "";
+        String contentType = resolveContentType(extension);
+
+        Media media = Media.builder()
+                .originalFilename(filename)
+                .s3Key(request.s3Key())
+                .url(url)
+                .contentType(contentType)
+                .mediaType(s3StorageService.resolveMediaType(contentType))
+                .fileSize(0L)
+                .category(request.category())
+                .productId(request.productId())
+                .altText(request.altText())
+                .displayOrder(request.displayOrder() != null ? request.displayOrder() : 0)
+                .uploadedBy(uploadedBy)
+                .build();
+
+        media = mediaRepository.save(media);
+        log.info("Media registered: id={}, category={}, key={}", media.getId(), request.category(), request.s3Key());
+        return toResponse(media);
+    }
+
+    private String resolveContentType(String extension) {
+        return switch (extension.toLowerCase()) {
+            case "jpg", "jpeg" -> "image/jpeg";
+            case "png" -> "image/png";
+            case "webp" -> "image/webp";
+            case "gif" -> "image/gif";
+            case "avif" -> "image/avif";
+            case "svg" -> "image/svg+xml";
+            case "mp4" -> "video/mp4";
+            case "webm" -> "video/webm";
+            default -> "image/jpeg";
+        };
+    }
+
+    @Transactional
     public void delete(Long id) {
         Media media = findById(id);
         s3StorageService.delete(media.getS3Key());

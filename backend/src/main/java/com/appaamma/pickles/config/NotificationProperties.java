@@ -16,6 +16,7 @@ public record NotificationProperties(
         Duration retryBackoff,
         Duration retryScanInterval,
         boolean asyncEnabled,
+        String adminPhone,
         Sms sms,
         WhatsApp whatsapp,
         Email email
@@ -24,6 +25,7 @@ public record NotificationProperties(
     public NotificationProperties {
         retryBackoff = retryBackoff == null ? Duration.ofMinutes(5) : retryBackoff;
         retryScanInterval = retryScanInterval == null ? Duration.ofMinutes(1) : retryScanInterval;
+        adminPhone = adminPhone == null ? "" : adminPhone;
         sms = sms == null ? new Sms(SmsProviderType.MOCK) : sms;
         whatsapp = whatsapp == null ? new WhatsApp(WhatsAppProviderType.MOCK, null) : whatsapp;
         email = email == null ? new Email(EmailProviderType.MOCK) : email;

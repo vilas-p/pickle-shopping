@@ -1,6 +1,7 @@
 package com.appaamma.pickles.api.v1.notification;
 
 import com.appaamma.pickles.api.v1.notification.event.*;
+import com.appaamma.pickles.config.NotificationProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
@@ -15,6 +16,7 @@ public class NotificationEventListener {
 
     private final NotificationService notificationService;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final NotificationProperties notificationProperties;
 
     @EventListener
     public void onUserRegistered(UserRegisteredEvent event) {
@@ -35,6 +37,18 @@ public class NotificationEventListener {
         if (hasText(context.email())) {
             notificationService.sendEmail("ORDER_PLACED_EMAIL", context.email(), variables);
         }
+        sendAdminWhatsApp("ADMIN_NEW_ORDER_WHATSAPP", variables);
+    }
+
+    @EventListener
+    public void onNewContact(NewContactEvent event) {
+        Map<String, Object> variables = new LinkedHashMap<>();
+        variables.put("CustomerName", valueOrDefault(event.fullName(), "Unknown"));
+        variables.put("Email", valueOrDefault(event.email(), ""));
+        variables.put("Phone", valueOrDefault(event.phone(), ""));
+        variables.put("Subject", valueOrDefault(event.subject(), ""));
+        variables.put("Message", valueOrDefault(event.message(), ""));
+        sendAdminWhatsApp("ADMIN_NEW_CONTACT_WHATSAPP", variables);
     }
 
     @EventListener
@@ -100,6 +114,13 @@ public class NotificationEventListener {
         variables.put("TrackingUrl", valueOrDefault(context.trackingUrl(), ""));
         variables.put("ReviewLink", valueOrDefault(context.reviewLink(), "/reviews"));
         return variables;
+    }
+
+    private void sendAdminWhatsApp(String templateCode, Map<String, Object> variables) {
+        String adminPhone = notificationProperties.adminPhone();
+        if (hasText(adminPhone)) {
+            notificationService.sendWhatsApp(templateCode, adminPhone, variables);
+        }
     }
 
     private boolean hasText(String value) {

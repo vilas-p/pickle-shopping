@@ -79,6 +79,7 @@ app:
     retry-backoff: ${APP_NOTIFICATION_RETRY_BACKOFF:PT5M}
     retry-scan-interval: ${APP_NOTIFICATION_RETRY_SCAN_INTERVAL:60000}
     async-enabled: ${APP_NOTIFICATION_ASYNC_ENABLED:true}
+    admin-phone: ${APP_NOTIFICATION_ADMIN_PHONE:}
     sms:
       provider: ${APP_NOTIFICATION_SMS_PROVIDER:MOCK}
     whatsapp:

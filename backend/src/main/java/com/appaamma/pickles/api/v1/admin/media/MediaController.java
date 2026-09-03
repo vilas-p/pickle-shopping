@@ -4,6 +4,7 @@ import com.appaamma.pickles.common.ApiResponse;
 import com.appaamma.pickles.domain.media.MediaCategory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -39,6 +40,18 @@ public class MediaController {
         MediaResponse response = mediaService.upload(file, category, productId, altText, displayOrder, uploadedBy);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok(response, "Media uploaded successfully"));
+    }
+
+    @Operation(summary = "[Admin] Register an existing S3 object as media (no re-upload)")
+    @PostMapping("/register")
+    public ResponseEntity<ApiResponse<MediaResponse>> register(
+            @Valid @RequestBody MediaRegisterRequest request,
+            @AuthenticationPrincipal UserDetails principal
+    ) {
+        Long uploadedBy = null;
+        MediaResponse response = mediaService.register(request, uploadedBy);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok(response, "Media registered successfully"));
     }
 
     @Operation(summary = "[Admin] List all media, optionally filtered by category")
